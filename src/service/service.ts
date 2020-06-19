@@ -99,10 +99,10 @@ class Service {
     async initApp(){
         return new Promise(resolve=>{
             const dapp = {
-                name: "CoralEx",
-                contractAddress: "CoralEx",
-                github: "https://github.com/CoralEx",
-                author: "CoralEx",
+                name: "Coral DEX",
+                contractAddress: "Coral DEX",
+                github: "https://github.com/coral-dex/dex",
+                author: "Coral DEX",
                 url: "//"+window.location.host,
                 logo: "//"+window.location.host+"/assets/icon/icon.png",
             }

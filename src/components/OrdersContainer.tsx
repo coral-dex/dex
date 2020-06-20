@@ -24,7 +24,7 @@ const OrdersContainer: React.FC<ContainerProps> = ({ list,payCoin,exchangeCoin,c
             items.push(
                 <IonRow className={"text-center"}>
                     <IonCol>
-                        {d.status === "0" ?<IonButton onClick={()=>{cancel(d.id)}} size="small" mode="ios" color="danger" expand={"block"} fill="outline">{i18n.t("cancelOrder")}</IonButton>:""}
+                        {d.status === "0" ?<IonButton onClick={()=>{cancel(d.id)}} size="small" mode="ios" color="danger" expand={"block"} fill="outline">{i18n.t("cancelOrder")}</IonButton>:converState(d.status)}
                     </IonCol>
                     <IonCol>
                         <IonText mode="ios" className={"text-item2"} color={d.orderType?"danger":"success"}>{d.orderType?i18n.t("sell"):i18n.t("buy")}</IonText><br/>
@@ -66,4 +66,11 @@ const OrdersContainer: React.FC<ContainerProps> = ({ list,payCoin,exchangeCoin,c
   );
 };
 
+function converState(state:string) {
+    if(state === "1"){
+        return <IonText mode="ios" className={"text-item2"} color="success">{i18n.t("completed")}</IonText>
+    }else if(state === "2"){
+        return <IonText mode="ios" className={"text-item2"} color="danger">{i18n.t("canceled")}</IonText>
+    }
+}
 export default OrdersContainer;

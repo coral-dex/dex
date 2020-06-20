@@ -28,5 +28,7 @@
   "bill": "Bill",
   "close": "Close",
   "ok": "OK",
-  "loadMore": "Load More"
+  "loadMore": "Load More",
+  "completed": "Completed",
+  "canceled": "Canceled"
 }

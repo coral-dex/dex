@@ -28,5 +28,7 @@
   "bill":"請求書",
   "close":"閉じる",
   "ok":"わかった",
-  "loadMore":"さらに読み込む"
+  "loadMore":"さらに読み込む",
+  "completed": "完了",
+  "canceled": "キャンセル"
 }

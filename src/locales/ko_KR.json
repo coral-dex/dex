@@ -28,5 +28,7 @@
   "bill": "청구서",
   "close": "닫기",
   "ok": "그래",
-  "loadMore": "추가로드"
+  "loadMore": "추가로드",
+  "completed": "완료",
+  "canceled": "취소됨"
 }

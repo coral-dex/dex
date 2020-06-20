@@ -157,7 +157,7 @@ class Assets extends React.Component<State, any>{
             showLoading:true,
             showModal:true
         })
-        coral.getBills(selectAccount.MainPKr,info.coin,(pageNo?pageNo:1-1)*pageSize,pageSize).then((rest:any)=>{
+        coral.getBills(selectAccount.MainPKr,info.coin,(pageNo?pageNo-1:1)*pageSize,pageSize).then((rest:any)=>{
             let showMore = false;
             if(rest && rest.length>=pageSize){
                 showMore = true

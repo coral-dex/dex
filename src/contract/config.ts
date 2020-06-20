@@ -1,7 +1,7 @@
 class Config {
 
     exchange:any = {
-        address:"5R4CWh19aT4MdUQVjeJDymYMvP5fhT4rpzBSxDjQuCgphrciu9T4sRTEtq3MrXuBVSJtf5r34VTSQy2Vy3jsxfcf",
+        address:"3FziqJnybzA7cHUUKqKTfjNzbzrm16phD5vWF46nVF6Jsk3bqGxcFG3u3RSsD4tf7ECW9fBXvT1Sq74JmTNPdRQy",
 
         abi:[
             {
@@ -153,6 +153,39 @@ class Config {
                 "outputs": [],
                 "payable": false,
                 "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [
+                    {
+                        "name": "coin",
+                        "type": "string"
+                    }
+                ],
+                "name": "getExBills",
+                "outputs": [
+                    {
+                        "components": [
+                            {
+                                "name": "value",
+                                "type": "uint256"
+                            },
+                            {
+                                "name": "timestamp",
+                                "type": "uint256"
+                            },
+                            {
+                                "name": "typ",
+                                "type": "uint8"
+                            }
+                        ],
+                        "name": "",
+                        "type": "tuple[]"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
                 "type": "function"
             },
             {
@@ -315,12 +348,57 @@ class Config {
                 "payable": false,
                 "stateMutability": "view",
                 "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [
+                    {
+                        "name": "coin",
+                        "type": "string"
+                    },
+                    {
+                        "name": "offset",
+                        "type": "uint256"
+                    },
+                    {
+                        "name": "limit",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "getBills",
+                "outputs": [
+                    {
+                        "components": [
+                            {
+                                "name": "value",
+                                "type": "uint256"
+                            },
+                            {
+                                "name": "timestamp",
+                                "type": "uint256"
+                            },
+                            {
+                                "name": "typ",
+                                "type": "uint8"
+                            }
+                        ],
+                        "name": "bills",
+                        "type": "tuple[]"
+                    },
+                    {
+                        "name": "count",
+                        "type": "uint256"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
             }
         ]
     }
 
     exchangeBase:any = {
-        address:"561m6CZJnf4f3mijj2tnMbHWLTg7CadTckV7VwHMgRszunnrgM9i9qHrZ9zreDyygWSiNMBXWBxytDPp63xgZiwi",
+        address:"4AArM9UDqAPJzijoHnP4aP9CjwjZAu1eCb89MjM47yrRc2GjaGBF1HjJiTMHkTPX55wdon1ifGkaDAYv8rG5mHZX",
 
         abi:[
             {
@@ -485,39 +563,6 @@ class Config {
                 "constant": true,
                 "inputs": [
                     {
-                        "name": "token",
-                        "type": "string"
-                    }
-                ],
-                "name": "getBills",
-                "outputs": [
-                    {
-                        "components": [
-                            {
-                                "name": "value",
-                                "type": "uint256"
-                            },
-                            {
-                                "name": "timestamp",
-                                "type": "uint256"
-                            },
-                            {
-                                "name": "typ",
-                                "type": "uint8"
-                            }
-                        ],
-                        "name": "",
-                        "type": "tuple[]"
-                    }
-                ],
-                "payable": false,
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "constant": true,
-                "inputs": [
-                    {
                         "name": "exchangeCoin",
                         "type": "string"
                     },
@@ -650,6 +695,29 @@ class Config {
                         ],
                         "name": "",
                         "type": "tuple[]"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [
+                    {
+                        "name": "exchangeCoin",
+                        "type": "string"
+                    },
+                    {
+                        "name": "payCoin",
+                        "type": "string"
+                    }
+                ],
+                "name": "allOrderIds",
+                "outputs": [
+                    {
+                        "name": "orders",
+                        "type": "uint256[]"
                     }
                 ],
                 "payable": false,

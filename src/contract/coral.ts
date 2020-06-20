@@ -90,8 +90,27 @@ class Coral {
         })
     }
 
-    async getBills(mainPKr:string,coin:string):Promise<Array<Bill>>{
-        const rest:any =  await this.callExchangeBase("getBills",mainPKr,[coin])
+    async getBills(mainPKr:string,coin:string,offset:number,limit:number):Promise<Array<Bill>>{
+        const rest:any =  await this.callExchange("getBills",mainPKr,[coin,offset,limit])
+        // const amount:any = rest[1];
+        const data = utils.convertResult(rest[0])
+        console.log("getBillsssss>>>",rest,data);
+        const decimal = await service.getDecimal(coin);
+        let h:Array<Bill> = [];
+        for(let d of data){
+            h.push({
+                value:utils.fromValue(d[0],decimal),
+                timestamp:d[1],
+                type: converState(d[2])
+            })
+        }
+        return new Promise((resolve) => {
+            resolve(h)
+        })
+    }
+
+    async getExBills(mainPKr:string,coin:string):Promise<Array<Bill>>{
+        const rest:any =  await this.callExchange("getExBills",mainPKr,[coin])
 
         const data = utils.convertResult(rest[0])
         console.log("getBills>>>",rest,data);

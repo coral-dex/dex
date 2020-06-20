@@ -5,7 +5,7 @@ import {BlanceOfCoin} from "../types/types";
 interface ContainerProps {
   info: BlanceOfCoin;
   withdraw:(info:BlanceOfCoin)=>void;
-  showBills:(info:BlanceOfCoin)=>void;
+  showBills:(info:BlanceOfCoin,pageNo:number)=>void;
 }
 
 const AssetsContainer: React.FC<ContainerProps> = ({ info,withdraw,showBills }) => {
@@ -44,7 +44,7 @@ const AssetsContainer: React.FC<ContainerProps> = ({ info,withdraw,showBills }) 
                       <IonButton mode="ios" size={"small"} fill="outline" expand="block" onClick={()=>withdraw(info)}>提现</IonButton>
                   </IonCol>
                   <IonCol>
-                      <IonButton mode="ios" size={"small"} fill="outline" expand="block" onClick={()=>showBills(info)}>账单</IonButton>
+                      <IonButton mode="ios" size={"small"} fill="outline" expand="block" onClick={()=>showBills(info,1)}>账单</IonButton>
                   </IonCol>
                   <IonCol>
                       <IonButton  mode="ios"size={"small"} fill="outline" expand="block" onClick={()=>{

@@ -28,6 +28,7 @@ import {storage} from "../common/storage";
 import {person} from 'ionicons/icons'
 import {Bill, BlanceOfCoin, PairVolumeInfo} from "../types/types";
 import utils from "../common/utils";
+import BillsContainer from "../components/BillsContainer";
 
 const customActionSheetOptions = {
     header: 'Accounts',
@@ -47,6 +48,9 @@ interface State {
     showLoading:boolean
     showAlert:boolean
     bills:Array<Bill>
+    pageNo:number
+    pageSize:number
+    showMore:boolean
 }
 
 class Assets extends React.Component<State, any>{
@@ -62,7 +66,10 @@ class Assets extends React.Component<State, any>{
         showPopover:false,
         showLoading:false,
         showAlert:false,
-        bills:[]
+        bills:[],
+        pageNo:1,
+        pageSize:10,
+        showMore:false,
     }
 
     componentDidMount(): void {
@@ -143,19 +150,24 @@ class Assets extends React.Component<State, any>{
         return h;
     }
 
-    showBill =(info:BlanceOfCoin)=>{
+    showBill =(info:BlanceOfCoin,pageNo?:number)=>{
         const that = this;
-        const {selectAccount} = this.state;
+        const {selectAccount,pageSize,bills} = this.state;
         that.setState({
             showLoading:true,
             showModal:true
         })
-        coral.getBills(selectAccount.MainPKr,info.coin).then((rest:any)=>{
-            console.log("getBills>> ",rest)
-
+        coral.getBills(selectAccount.MainPKr,info.coin,(pageNo?pageNo:1-1)*pageSize,pageSize).then((rest:any)=>{
+            let showMore = false;
+            if(rest && rest.length>=pageSize){
+                showMore = true
+            }
             that.setState({
-                bills:rest,
+                bills: pageNo===1?rest:bills.concat(rest),
                 showLoading:false,
+                pageNo:pageNo,
+                info:info,
+                showMore:showMore
             })
         }).catch(e=>{
             console.log(e)
@@ -217,34 +229,9 @@ class Assets extends React.Component<State, any>{
         })
     }
 
-    renderBill = ()=>{
-        const {bills} = this.state;
-        const h:Array<any> = [];
-        h.push(
-            <IonRow>
-                <IonCol className={"text-item text-center"}>时间</IonCol>
-                <IonCol className={"text-item text-center"}>类型</IonCol>
-                <IonCol className={"text-item text-center"}>金额</IonCol>
-            </IonRow>
-        )
-        if(bills && bills.length>0){
-            for (let d of bills){
-                h.push(
-                    <IonRow>
-                        <IonCol className={"text-item-dark text-center"}>{utils.timeFormat(new Date(Math.ceil(parseInt(d.timestamp) * 1000)))}</IonCol>
-                        <IonCol className={"text-item-dark text-center"}>{d.type}</IonCol>
-                        <IonCol className={"text-item-dark text-center"}>{d.value.toString(10)}</IonCol>
-                    </IonRow>
-                )
-            }
-        }
-        return h
-    }
-
     render(): React.ReactNode {
-        const {searchText,showModal,value,selectAccount,accounts,showPopover,showLoading,info,showAlert} = this.state;
+        const {searchText,showModal,bills,selectAccount,accounts,showPopover,showLoading,showAlert,showMore,info,pageNo} = this.state;
         const options = this.renderAccountsOp(accounts)
-        const billsInfo:any = this.renderBill();
         return (
             <IonPage>
                 <IonContent>
@@ -276,9 +263,7 @@ class Assets extends React.Component<State, any>{
                     {this.renderAssets()}
 
                     <IonModal isOpen={showModal}>
-                        <IonList>
-                            {billsInfo}
-                        </IonList>
+                        <BillsContainer bills={bills} showMore={showMore} info={info} pageNo={pageNo} showBill={this.showBill}/>
                         <IonButton onClick={() => this.setShowModal(false)}>Close</IonButton>
                     </IonModal>
 

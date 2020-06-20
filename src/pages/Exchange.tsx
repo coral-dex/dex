@@ -26,26 +26,21 @@ import {
     IonList,
     IonItem,
     IonLabel,
-    IonLoading
+    IonLoading,
+    IonActionSheet
 } from '@ionic/react';
 import './quotes.css'
 import OrdersContainer from "../components/OrdersContainer";
 import PriceContainer from "../components/PriceContainer";
-import {chevronDown, person} from 'ionicons/icons'
+import {chevronDown, person, ellipsisVerticalOutline,trashOutline,close} from 'ionicons/icons'
 import service from "../service/service";
 import utils from "../common/utils";
 import {storage} from "../common/storage";
-import {Order, PairInfo, PairVolumeInfo} from "../types/types";
+import {Bill, BlanceOfCoin, Order, PairInfo, PairVolumeInfo} from "../types/types";
 import coral, {AllOrder} from "../contract/coral";
 import BigNumber from "bignumber.js";
 import MarketContainer from "../components/MarketContainer";
-
-
-
-const customActionSheetOptions = {
-    header: 'Accounts',
-    subHeader: 'Select one account for coral exchange'
-};
+import BillsContainer from "../components/BillsContainer";
 
 interface State {
     rangeValue:0
@@ -57,13 +52,14 @@ interface State {
     payCoins: Array<any>
     orders: Array<Order>
     opType:string
+    useCoralBalance:boolean
     amount:any
     price:any
     total:any
     datas:Array<PairVolumeInfo>
     list: Array<PairVolumeInfo>
     selectCoin: string
-    balanceCoral:BigNumber
+    balanceCoral:Array<BlanceOfCoin>
     disabled:boolean
     showPopover:boolean
     showLoading:boolean
@@ -72,6 +68,8 @@ interface State {
     pageNo:number
     pageSize:number
     loadMore:boolean
+    showActionSheet:boolean
+    bills:Array<Bill>
 }
 
 class Exchange extends React.Component<State, any>{
@@ -90,7 +88,7 @@ class Exchange extends React.Component<State, any>{
         datas:[],
         list:[],
         selectCoin: storage.get(storage.keys.coins),
-        balanceCoral:new BigNumber(0),
+        balanceCoral:[],
         disabled:false,
         showPopover:false,
         showLoading:false,
@@ -98,7 +96,10 @@ class Exchange extends React.Component<State, any>{
         orderCount:0,
         pageNo:1,
         pageSize:10,
-        loadMore:false
+        loadMore:false,
+        useCoralBalance:false,
+        showActionSheet:false,
+        bills:[]
     }
 
     componentDidMount(): void {
@@ -110,10 +111,10 @@ class Exchange extends React.Component<State, any>{
         const that = this;
         that.getAccounts().then(rest=>{
             that.setPairVolumeInfo().catch();
-            // that.getBalanceCoral().catch();
-        }).catch();
 
+        }).catch();
         that.getDatas().catch();
+        that.timeOrders();
 
         let intervalId:any = sessionStorage.getItem("intervalId");
         if(intervalId){
@@ -142,12 +143,15 @@ class Exchange extends React.Component<State, any>{
         info = storage.get(storage.keys.pairs)
         if(info){
             const detail:PairInfo = await coral.pairInfo(info.exchangeCoin,info.payCoin);
-            that.setOrderType();
+            const balanceEx = await coral.balanceOf(selectAccount.MainPKr,info.exchangeCoin)
+            const balanceCoin = await coral.balanceOf(selectAccount.MainPKr,info.payCoin)
+            that.timeOrders();
             that.setState({
                 info:info,
                 detail:detail,
                 payCoins:payCoins,
-                showLoading:false
+                showLoading:false,
+                balanceCoral:balanceEx.concat(balanceCoin)
             })
         }
     }
@@ -162,7 +166,8 @@ class Exchange extends React.Component<State, any>{
 
         this.setState({
             accounts:rest,
-            selectAccount:current
+            selectAccount:current,
+
         })
     }
 
@@ -222,30 +227,34 @@ class Exchange extends React.Component<State, any>{
     }
 
     getBalance=()=> {
-        const {selectAccount, info, opType} = this.state;
+        const {selectAccount, info, opType,useCoralBalance} = this.state;
         if (info) {
             let balance = selectAccount.Balance;
             let cy = info?.payCoin
             if (opType === "sell") {
                 cy = info?.exchangeCoin
             }
-            const decimal = service.getDecimalCache(cy);
-            if (balance && balance.has(cy)) {
-                return utils.fromValue(balance.get(cy), decimal).toFixed(utils.balanceFixed())
+            if(useCoralBalance){
+                return this.getBalanceCoral(cy)
+            }else{
+                const decimal = service.getDecimalCache(cy);
+                if (balance && balance.has(cy)) {
+                    return utils.fromValue(balance.get(cy), decimal).toFixed(utils.balanceFixed())
+                }
             }
+
         }
         return "0.0000"
     }
 
-    async getBalanceCoral(){
-        const {selectAccount,info} = this.state;
-        if(info){
-            const decimal = await service.getDecimal(info.exchangeCoin);
-            const rest:any = await coral.balanceOf(selectAccount.MainPKr,info.exchangeCoin)
-            this.setState({
-                balanceCoral:utils.fromValue(rest,decimal)
-            })
+    getBalanceCoral(coin:string){
+        const {balanceCoral} = this.state;
+        for(let d of balanceCoral){
+            if(coin === d.coin){
+                return d.amount.toFixed(utils.balanceFixed(),1)
+            }
         }
+        return "0.0000"
     }
 
     setPrice(v:any){
@@ -292,7 +301,7 @@ class Exchange extends React.Component<State, any>{
     }
 
     sellConfirm(){
-        const {price,amount,total,info,selectAccount,opType} = this.state;
+        const {price,amount,total,info,selectAccount,opType,useCoralBalance} = this.state;
         if(!price || !amount){
             return;
         }
@@ -307,14 +316,20 @@ class Exchange extends React.Component<State, any>{
             }
             const priceValue = utils.toValue(price,service.getDecimalCache(info.payCoin));
             const amountValue = utils.toValue(amount,service.getDecimalCache(info.exchangeCoin));
-            coral.sellFromWallet(selectAccount.PK,selectAccount.MainPKr,info.payCoin,priceValue,info.exchangeCoin,amountValue).then(rest=>{
-                this.setAmount(0)
-            }).catch()
+            if(useCoralBalance){
+                coral.sell(selectAccount.PK,selectAccount.MainPKr,info.exchangeCoin,info.payCoin,priceValue,amountValue).then(rest=>{
+                    this.setAmount(0)
+                }).catch()
+            }else{
+                coral.sellFromWallet(selectAccount.PK,selectAccount.MainPKr,info.payCoin,priceValue,info.exchangeCoin,amountValue).then(rest=>{
+                    this.setAmount(0)
+                }).catch()
+            }
         }
     }
 
     buyConfirm(){
-        const {price,amount,total,info,selectAccount} = this.state;
+        const {price,amount,total,info,selectAccount,useCoralBalance} = this.state;
         if(!price || !amount){
             return;
         }
@@ -328,9 +343,15 @@ class Exchange extends React.Component<State, any>{
             const amountValue = utils.toValue(amount,service.getDecimalCache(info.exchangeCoin));
             const totalValue = utils.toValue(total,service.getDecimalCache(info.exchangeCoin));
 
-            coral.buyFromWallet(selectAccount.PK,selectAccount.MainPKr,info.exchangeCoin,priceValue,amountValue,totalValue,info.payCoin).then(rest=>{
-                this.setAmount(0)
-            }).catch()
+            if(useCoralBalance){
+                coral.buy(selectAccount.PK,selectAccount.MainPKr,info.exchangeCoin,info.payCoin,priceValue,amountValue).then(rest=>{
+                    this.setAmount(0)
+                }).catch()
+            }else{
+                coral.buyFromWallet(selectAccount.PK,selectAccount.MainPKr,info.exchangeCoin,priceValue,amountValue,totalValue,info.payCoin).then(rest=>{
+                    this.setAmount(0)
+                }).catch()
+            }
         }
     }
 
@@ -338,6 +359,19 @@ class Exchange extends React.Component<State, any>{
         const {info,selectAccount} = this.state;
         if(info){
             coral.cancel(selectAccount.PK,selectAccount.MainPKr,info.exchangeCoin,info.payCoin,[id]).then()
+        }
+    }
+
+    cancelAll(){
+        const {info,selectAccount,orders} = this.state;
+        const ids:Array<number> = [];
+        for(let d of orders){
+            if(d.status === "0"){
+                ids.push(d.id)
+            }
+        }
+        if(info){
+            coral.cancel(selectAccount.PK,selectAccount.MainPKr,info.exchangeCoin,info.payCoin,ids).then()
         }
     }
 
@@ -403,9 +437,24 @@ class Exchange extends React.Component<State, any>{
         return ops
     }
 
+    timeOrders(){
+        const that = this;
+        const {selectAccount,info,orderType} = this.state;
+        if(info && orderType === "current"){
+            coral.orders(selectAccount.MainPKr,info.exchangeCoin,info.payCoin).then((rest:any)=>{
+                that.setState({
+                    orders:rest,
+                    orderCount:0,
+                    pageNo:1,
+                    loadMore:false
+                })
+            });
+        }
+    }
+
     setOrderType(v?:any){
         const that = this;
-        const {selectAccount,info,pageSize,pageNo,orderType} = this.state;
+        const {selectAccount,info,pageSize,pageNo,orderType,orders} = this.state;
         if(v){
             this.setState({
                 orderType:v,
@@ -424,26 +473,32 @@ class Exchange extends React.Component<State, any>{
                         loadMore:false
                     })
                 });
+            }else if(v === "myBill"){
+                coral.getExBills(selectAccount.MainPKr,info.exchangeCoin).then((rest:any)=>{
+                    that.setState({
+                        bills:rest
+                    })
+                });
             }else{
                 coral.allOrders(selectAccount.MainPKr,info.exchangeCoin,info.payCoin,pageSize*(pageNo-1),pageSize).then((rest:AllOrder)=>{
                     that.setState({
-                        orders:rest.orders,
+                        orders:pageNo===1?rest.orders:orders.concat(rest.orders),
                         orderCount:rest.count,
-                        pageNo:1,
                         loadMore:rest.orders.length >= pageSize
                     })
                 });
             }
         }
+
     }
 
     orderPage(pageNo:number){
         const that = this;
-        const {pageSize,selectAccount,info} = this.state;
+        const {pageSize,selectAccount,info,orders} = this.state;
         if(info){
             coral.allOrders(selectAccount.MainPKr,info.exchangeCoin,info.payCoin,pageSize*(pageNo-1),pageSize).then((rest:AllOrder)=>{
                 that.setState({
-                    orders:rest.orders,
+                    orders:pageNo===1?rest.orders:orders.concat(rest.orders),
                     orderCount:rest.count,
                     pageNo:pageNo,
                     loadMore:rest.orders.length >= pageSize
@@ -452,8 +507,37 @@ class Exchange extends React.Component<State, any>{
         }
     }
 
+    setUserCoralBalance(){
+        const {useCoralBalance} = this.state;
+        this.setState({
+            useCoralBalance:!useCoralBalance
+        })
+    }
+
+    setShowActionSheet(f:boolean){
+        this.setState({
+            showActionSheet:f
+        })
+    }
+
+    showBill =(info:BlanceOfCoin)=>{
+        const that = this;
+        const {selectAccount} = this.state;
+        coral.getExBills(selectAccount.MainPKr,info.coin).then((rest:any)=>{
+            that.setState({
+                bills: rest,
+            })
+        }).catch(e=>{
+            console.log(e)
+        })
+    }
+
     render(): React.ReactNode {
-        const {info,accounts,selectAccount,detail,opType,price,amount,rangeValue,total,orders,searchText, selectCoin,list,payCoins,showLoading,showPopover,orderType,pageNo,loadMore} = this.state;
+        const {info,accounts,selectAccount,detail,opType,
+            price,amount,rangeValue,total,orders,searchText,
+            selectCoin,list,payCoins,showLoading,showPopover,
+            orderType,pageNo,loadMore,useCoralBalance,showActionSheet,bills} = this.state;
+
         const options = this.renderAccountsOp(accounts)
         // const data = this.renderData();
         let latestPrice = "0.0000";
@@ -526,10 +610,10 @@ class Exchange extends React.Component<State, any>{
                                     <IonInput mode="ios" placeholder={"0.0000"} color={"dark"} inputmode={"decimal"} min="0" value={amount} type="number"  onIonChange={e => this.setAmount(e.detail.value !)}/>
                                     <div style={{position: "absolute", right: 0}} className={"text-item"}>{this.getBalance()} {exchangeUnit}</div>
                                     <div className={"text-item"}>可用</div>
-                                    {/*<IonItem>*/}
-                                    {/*    <IonLabel>From wallet</IonLabel>*/}
-                                    {/*    <IonToggle value="wallet"  mode="ios"/>*/}
-                                    {/*</IonItem>*/}
+                                    <IonRow>
+                                        <IonCol size="4"><IonToggle mode="ios" checked={useCoralBalance} onIonChange={()=>{this.setUserCoralBalance()}}/></IonCol>
+                                        <IonCol size="8"><IonText className={"text-item-dark"}>使用交易所账户余额</IonText></IonCol>
+                                    </IonRow>
                                 </div>
                                 <div>
                                     <IonRange mode="ios" dualKnobs={false} min={0} max={100} step={25} value={rangeValue} snaps={true} onIonChange={e => this.setRange(e.detail.value as any)}/>
@@ -557,18 +641,30 @@ class Exchange extends React.Component<State, any>{
                         </IonRow>
                     </IonGrid>
                     <div className={"divider"}/>
-                    <IonSegment mode="md" value={orderType} onIonChange={e => this.setOrderType(e.detail.value)}>
-                        <IonSegmentButton mode="md" value="current">
-                            <IonLabel mode="md">当前委托</IonLabel>
-                        </IonSegmentButton>
-                        <IonSegmentButton mode="md" value="all">
-                            <IonLabel mode="md">全部交易</IonLabel>
-                        </IonSegmentButton>
-                    </IonSegment>
+                    <IonRow>
+                        <IonCol size="10">
+                            <IonSegment mode="md" value={orderType} onIonChange={e => this.setOrderType(e.detail.value)}>
+                                <IonSegmentButton mode="md" value="current">
+                                    <IonLabel mode="md">当前委托</IonLabel>
+                                </IonSegmentButton>
+                                <IonSegmentButton mode="md" value="all">
+                                    <IonLabel mode="md">全部委托</IonLabel>
+                                </IonSegmentButton>
+                                <IonSegmentButton mode="md" value="myBill">
+                                    <IonLabel mode="md">我的成交</IonLabel>
+                                </IonSegmentButton>
+                            </IonSegment>
+                        </IonCol>
+                        <IonCol size="2" className="order-ellipse" onClick={()=>{
+                            this.setShowActionSheet(true)
+                        }}>
+                            <IonIcon mode="ios" icon={ellipsisVerticalOutline}/>
+                        </IonCol>
+                    </IonRow>
 
-                    <OrdersContainer list={orders} payCoin={info?.payCoin} exchangeCoin={info?.exchangeCoin} cancel={this.cancel}/>
+                    {orderType === "myBill"?<BillsContainer bills={bills} info={{coin:info?info.exchangeCoin:"",amount:new BigNumber(0),lockedAmount:new BigNumber(0)}} pageNo={pageNo} showMore={false} showBill={this.showBill}/>:<OrdersContainer list={orders} payCoin={info?.payCoin} exchangeCoin={info?.exchangeCoin} cancel={this.cancel}/>}
                     {
-                        loadMore && <IonButton onClick={()=>{this.orderPage(pageNo+1)}} expand="block" fill="outline" >加载更多</IonButton>
+                        loadMore && <IonButton onClick={()=>{this.orderPage(pageNo+1)}} mode="ios" size="small" expand="block" fill="outline" >加载更多</IonButton>
                     }
                 </IonContent>
                 <IonLoading  mode="ios"
@@ -576,6 +672,27 @@ class Exchange extends React.Component<State, any>{
                     isOpen={showLoading}
                     message={'Please wait...'}
                 />
+                <IonActionSheet
+                    mode="ios"
+                    isOpen={showActionSheet}
+                    onDidDismiss={() => this.setShowActionSheet(false)}
+                    cssClass='my-custom-class'
+                    buttons={[{
+                        text: '全部撤销',
+                        role: 'destructive',
+                        icon: trashOutline,
+                        handler: () => {
+                            this.cancelAll();
+                        }
+                    }, {
+                        text: '取消',
+                        role: '取消',
+                        handler: () => {
+                            console.log('Cancel clicked');
+                        }
+                    }]}
+                >
+                </IonActionSheet>
             </IonPage>
         );
     }

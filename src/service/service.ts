@@ -103,8 +103,8 @@ class Service {
                 contractAddress: "Coral DEX",
                 github: "https://github.com/coral-dex/dex",
                 author: "Coral DEX",
-                url: "//"+window.location.host,
-                logo: "//"+window.location.host+"/assets/icon/icon.png",
+                url: window.location.href,
+                logo: window.location.origin+window.location.pathname +"assets/icon/icon.png",
             }
 
             seropp.init(dapp,function (rest:any) {

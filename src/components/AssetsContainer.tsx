@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonCol, IonRow, IonText} from "@ionic/react";
 import {BlanceOfCoin} from "../types/types";
+import i18n from "../i18n";
 
 interface ContainerProps {
   info: BlanceOfCoin;
@@ -18,13 +19,13 @@ const AssetsContainer: React.FC<ContainerProps> = ({ info,withdraw,showBills }) 
           <IonCardContent>
               <IonRow className={"text-center"}>
                   <IonCol>
-                      <IonText mode="ios" className={"text-item"}>持有数量</IonText>
+                      <IonText mode="ios" className={"text-item"}>{i18n.t("total")}</IonText>
                   </IonCol>
                   <IonCol>
-                      <IonText mode="ios" className={"text-item"}>可用数量</IonText>
+                      <IonText mode="ios" className={"text-item"}>{i18n.t("available")}</IonText>
                   </IonCol>
                   <IonCol>
-                      <IonText mode="ios" className={"text-item"}>锁定数量</IonText>
+                      <IonText mode="ios" className={"text-item"}>{i18n.t("locked")}</IonText>
                   </IonCol>
               </IonRow>
               <IonRow className={"text-center"}>
@@ -41,15 +42,15 @@ const AssetsContainer: React.FC<ContainerProps> = ({ info,withdraw,showBills }) 
 
               <IonRow className={"text-center"}>
                   <IonCol>
-                      <IonButton mode="ios" size={"small"} fill="outline" expand="block" onClick={()=>withdraw(info)}>提现</IonButton>
+                      <IonButton mode="ios" size={"small"} fill="outline" expand="block" onClick={()=>withdraw(info)}>{i18n.t("withdraw")}</IonButton>
                   </IonCol>
                   <IonCol>
-                      <IonButton mode="ios" size={"small"} fill="outline" expand="block" onClick={()=>showBills(info,1)}>账单</IonButton>
+                      <IonButton mode="ios" size={"small"} fill="outline" expand="block" onClick={()=>showBills(info,1)}>{i18n.t("bill")}</IonButton>
                   </IonCol>
                   <IonCol>
                       <IonButton  mode="ios"size={"small"} fill="outline" expand="block" onClick={()=>{
                           window.location.href = "#/exchange"
-                      }}>交易</IonButton>
+                      }}>{i18n.t("exchange")}</IonButton>
                   </IonCol>
               </IonRow>
           </IonCardContent>

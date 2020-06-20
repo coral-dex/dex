@@ -34,6 +34,7 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 import service from "./service/service";
+import i18n from "./i18n";
 
 class App extends React.Component<any, any>{
 
@@ -55,15 +56,15 @@ class App extends React.Component<any, any>{
           <IonTabBar slot="bottom">
             <IonTabButton tab="quotes" href="/quotes">
               <IonIcon icon={statsChartOutline} />
-              <IonLabel>行情</IonLabel>
+              <IonLabel>{i18n.t("market")}</IonLabel>
             </IonTabButton>
             <IonTabButton tab="exchange" href="/exchange">
               <IonIcon icon={swapHorizontalOutline} />
-              <IonLabel>交易</IonLabel>
+              <IonLabel>{i18n.t("exchange")}</IonLabel>
             </IonTabButton>
             <IonTabButton tab="assets" href="/assets">
               <IonIcon icon={walletOutline} />
-              <IonLabel>资产</IonLabel>
+              <IonLabel>{i18n.t("assets")}</IonLabel>
             </IonTabButton>
           </IonTabBar>
         </IonTabs>

@@ -7,6 +7,7 @@ import {
 } from "@ionic/react";
 import {Bill, BlanceOfCoin} from "../types/types";
 import utils from "../common/utils";
+import i18n from "../i18n";
 
 interface ContainerProps {
 
@@ -22,9 +23,9 @@ const BillsContainer: React.FC<ContainerProps> = ({bills, showMore, info, pageNo
     const h: Array<any> = [];
     h.push(
         <IonRow>
-            <IonCol className={"text-item text-center"}>时间</IonCol>
-            <IonCol className={"text-item text-center"}>类型</IonCol>
-            <IonCol className={"text-item text-center"}>数量({info?.coin})</IonCol>
+            <IonCol className={"text-item text-center"}>{i18n.t("createTime")}</IonCol>
+            <IonCol className={"text-item text-center"}>{i18n.t("opType")}</IonCol>
+            <IonCol className={"text-item text-center"}>{i18n.t("amount")}({info?.coin})</IonCol>
         </IonRow>
     )
     if (bills && bills.length > 0) {
@@ -45,7 +46,7 @@ const BillsContainer: React.FC<ContainerProps> = ({bills, showMore, info, pageNo
                 <IonCol>
                     <IonButton fill="outline" mode="ios" size="small" expand="block" onClick={() => {
                         showBill&&showBill(info, pageNo + 1)
-                    }}>加载更多</IonButton>
+                    }}>{i18n.t("loadMore")}</IonButton>
                 </IonCol>
             </IonRow>
         )

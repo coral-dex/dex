@@ -41,6 +41,7 @@ import coral, {AllOrder} from "../contract/coral";
 import BigNumber from "bignumber.js";
 import MarketContainer from "../components/MarketContainer";
 import BillsContainer from "../components/BillsContainer";
+import i18n from "../i18n";
 
 interface State {
     rangeValue:0
@@ -546,11 +547,11 @@ class Exchange extends React.Component<State, any>{
         }
         let exchangeUnit = info?.payCoin
         // let volUnit = info?.exchangeCoin;
-        let btn = <IonButton mode="ios" expand={"full"} size={"small"} style={{width: '100%'}} color={"success"} onClick={()=>{this.buyConfirm()}}>买入</IonButton>
+        let btn = <IonButton mode="ios" expand={"full"} size={"small"} style={{width: '100%'}} color={"success"} onClick={()=>{this.buyConfirm()}}>{i18n.t("buy")}</IonButton>
         if(opType === 'sell'){
             exchangeUnit = info?.exchangeCoin;
             // volUnit = info?.payCoin
-            btn = <IonButton mode="ios" expand={"full"} size={"small"} style={{width: '100%'}} color={"danger"} onClick={()=>{this.sellConfirm()}}>卖出</IonButton>
+            btn = <IonButton mode="ios" expand={"full"} size={"small"} style={{width: '100%'}} color={"danger"} onClick={()=>{this.sellConfirm()}}>{i18n.t("sell")}</IonButton>
         }
 
         return (
@@ -594,25 +595,25 @@ class Exchange extends React.Component<State, any>{
                                     <IonItem lines="none" mode="ios">
                                         <IonSegment mode="ios" value={opType} onIonChange={e => this.setOpType(e.detail.value)}>
                                             <IonSegmentButton mode="ios" value="buy">
-                                                <IonLabel mode="ios" color={"success"}>买入</IonLabel>
+                                                <IonLabel mode="ios" color={"success"}>{i18n.t("buy")}</IonLabel>
                                             </IonSegmentButton>
                                             <IonSegmentButton mode="ios" value="sell">
-                                                <IonLabel mode="ios" color={"danger"}>卖出</IonLabel>
+                                                <IonLabel mode="ios" color={"danger"}>{i18n.t("sell")}</IonLabel>
                                             </IonSegmentButton>
                                         </IonSegment>
                                     </IonItem>
                                 </div>
 
                                 <div style={{padding: "0 0 0 15px"}}>
-                                    <div className={"text-item"}>单价({info?.payCoin})</div>
+                                    <div className={"text-item"}>{i18n.t("price")}({info?.payCoin})</div>
                                     <IonInput mode="ios" placeholder={"0.0000"} pattern={"/^(\\d+|\\d+\\.\\d{1,2})$/"} color={"dark"} inputmode={"decimal"} value={price} min="0" type="number"  onIonChange={e => this.setPrice(e.detail.value!)}/>
-                                    <div className={"text-item"}>数量({info?.exchangeCoin})</div>
+                                    <div className={"text-item"}>{i18n.t("amount")}({info?.exchangeCoin})</div>
                                     <IonInput mode="ios" placeholder={"0.0000"} color={"dark"} inputmode={"decimal"} min="0" value={amount} type="number"  onIonChange={e => this.setAmount(e.detail.value !)}/>
                                     <div style={{position: "absolute", right: 0}} className={"text-item"}>{this.getBalance()} {exchangeUnit}</div>
-                                    <div className={"text-item"}>可用</div>
+                                    <div className={"text-item"}>{i18n.t("available")}</div>
                                     <IonRow>
                                         <IonCol size="4"><IonToggle mode="ios" checked={useCoralBalance} onIonChange={()=>{this.setUserCoralBalance()}}/></IonCol>
-                                        <IonCol size="8"><IonText className={"text-item-dark"}>使用交易所账户余额</IonText></IonCol>
+                                        <IonCol size="8"><IonText className={"text-item-dark"}>{i18n.t("useExchangeBalance")}</IonText></IonCol>
                                     </IonRow>
                                 </div>
                                 <div>
@@ -645,13 +646,13 @@ class Exchange extends React.Component<State, any>{
                         <IonCol size="10">
                             <IonSegment mode="md" value={orderType} onIonChange={e => this.setOrderType(e.detail.value)}>
                                 <IonSegmentButton mode="md" value="current">
-                                    <IonLabel mode="md">当前委托</IonLabel>
+                                    <IonLabel mode="md">{i18n.t("currentOrders")}</IonLabel>
                                 </IonSegmentButton>
                                 <IonSegmentButton mode="md" value="all">
-                                    <IonLabel mode="md">全部委托</IonLabel>
+                                    <IonLabel mode="md">{i18n.t("allOrders")}</IonLabel>
                                 </IonSegmentButton>
                                 <IonSegmentButton mode="md" value="myBill">
-                                    <IonLabel mode="md">我的成交</IonLabel>
+                                    <IonLabel mode="md">{i18n.t("myBills")}</IonLabel>
                                 </IonSegmentButton>
                             </IonSegment>
                         </IonCol>
@@ -664,7 +665,7 @@ class Exchange extends React.Component<State, any>{
 
                     {orderType === "myBill"?<BillsContainer bills={bills} info={{coin:info?info.exchangeCoin:"",amount:new BigNumber(0),lockedAmount:new BigNumber(0)}} pageNo={pageNo} showMore={false} showBill={this.showBill}/>:<OrdersContainer list={orders} payCoin={info?.payCoin} exchangeCoin={info?.exchangeCoin} cancel={this.cancel}/>}
                     {
-                        loadMore && <IonButton onClick={()=>{this.orderPage(pageNo+1)}} mode="ios" size="small" expand="block" fill="outline" >加载更多</IonButton>
+                        loadMore && <IonButton onClick={()=>{this.orderPage(pageNo+1)}} mode="ios" size="small" expand="block" fill="outline" >{i18n.t("Load More")}</IonButton>
                     }
                 </IonContent>
                 <IonLoading  mode="ios"
@@ -678,15 +679,15 @@ class Exchange extends React.Component<State, any>{
                     onDidDismiss={() => this.setShowActionSheet(false)}
                     cssClass='my-custom-class'
                     buttons={[{
-                        text: '全部撤销',
+                        text: i18n.t("cancelAllOrder"),
                         role: 'destructive',
                         icon: trashOutline,
                         handler: () => {
                             this.cancelAll();
                         }
                     }, {
-                        text: '取消',
-                        role: '取消',
+                        text: i18n.t("cancel"),
+                        role: 'cancel',
                         handler: () => {
                             console.log('Cancel clicked');
                         }

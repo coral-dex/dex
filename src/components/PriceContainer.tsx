@@ -8,6 +8,7 @@ import {Order, PairInfo} from "../types/types";
 import BigNumber from "bignumber.js";
 import utils from "../common/utils";
 import mapSort from "mapsort";
+import i18n from "../i18n";
 
 interface ContainerProps {
     detail?: PairInfo;
@@ -123,8 +124,8 @@ const PriceContainer: React.FC<ContainerProps> = ({detail,lastPrice,payCoin,exch
         <>
             <div>
                 <IonItem lines="none">
-                    <IonLabel><IonText className={"text-item"}>价格({payCoin})</IonText></IonLabel>
-                    <IonText className={"text-item"}>数量({exchangeCoin})</IonText>
+                    <IonLabel><IonText className={"text-item"}>{i18n.t("price")}({payCoin})</IonText></IonLabel>
+                    <IonText className={"text-item"}>{i18n.t("amount")}({exchangeCoin})</IonText>
                 </IonItem>
             </div>
             <div style={{overflowY: "scroll", height: (height - 44) / 11 * 5}}>

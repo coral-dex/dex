@@ -8,6 +8,7 @@ import {
 import {PairVolumeInfo} from "../types/types";
 import {storage} from "../common/storage";
 import utils from "../common/utils";
+import i18n from "../i18n";
 
 interface ContainerProps {
     list: Array<PairVolumeInfo>;
@@ -81,9 +82,9 @@ const MarketContainer: React.FC<ContainerProps> = ({ list,onSearch,searchText,se
           </IonSegment>
           <IonGrid>
               <IonRow>
-                  <IonCol className="text-center text-style">24H成交量</IonCol>
-                  <IonCol className="text-center text-style">最新价</IonCol>
-                  <IonCol className="text-center text-style">24H涨跌幅</IonCol>
+                  <IonCol className="text-center text-style">{i18n.t("24hVol")}</IonCol>
+                  <IonCol className="text-center text-style">{i18n.t("latestPrice")}</IonCol>
+                  <IonCol className="text-center text-style">{i18n.t("24hPercent")}</IonCol>
               </IonRow>
           </IonGrid>
           <IonList mode="ios">

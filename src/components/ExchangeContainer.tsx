@@ -25,12 +25,12 @@ const ExchangeContainer: React.FC<ContainerProps> = ({list, setRange,opType}) =>
     return (
         <>
             <div style={{padding: "0 0 0 15px"}}>
-                <div className={"text-item"}>单价(USDT)</div>
+                <div className={"text-item"}>{i18n.t("price")}(USDT)</div>
                 <IonInput mode="ios" placeholder={"0.0000"} color={"dark"} inputmode={"decimal"} min="0" type="number"/>
-                <div className={"text-item"}>数量(BTC)</div>
+                <div className={"text-item"}>{i18n.t("amount")}(BTC)</div>
                 <IonInput mode="ios" placeholder={"100"} color={"dark"} inputmode={"decimal"} min="0" type="number"/>
                 <div style={{position: "absolute", right: 0}} className={"text-item"}>50.000 USDT</div>
-                <div className={"text-item"}>可用</div>
+                <div className={"text-item"}>{i18n.t("available")}</div>
             </div>
             <div>
                 <IonRange mode="ios" dualKnobs={false} min={0} max={100} step={25} value={0} snaps={true}

@@ -29,7 +29,7 @@ import {person} from 'ionicons/icons'
 import {Bill, BlanceOfCoin, PairVolumeInfo} from "../types/types";
 import utils from "../common/utils";
 import BillsContainer from "../components/BillsContainer";
-
+import i18n from '../i18n'
 const customActionSheetOptions = {
     header: 'Accounts',
     subHeader: 'Select one account for coral exchange'
@@ -217,6 +217,7 @@ class Assets extends React.Component<State, any>{
         }
         return ops
     }
+
     setShowPopover(f:boolean){
         this.setState({
             showPopover:f
@@ -238,7 +239,7 @@ class Assets extends React.Component<State, any>{
                     <IonHeader mode="ios">
                         <IonToolbar mode="ios">
                             <IonTitle>
-                                资产
+                                {i18n.t("assets")}
                             </IonTitle>
                             <IonButtons slot="end" onClick={()=>{this.setShowPopover(true)}}>
                                 <div className="popover-content sc-ion-popover-ios popover-cst">

@@ -77,7 +77,7 @@ const MarketContainer: React.FC<ContainerProps> = ({ list,onSearch,searchText,se
   return (
       <>
           <IonSearchbar mode="ios" value={searchText} placeholder={"SERO"}onIonChange={e => onSearch(e.detail.value!)}/>
-          <IonSegment mode="md" value={selectCoin} onIonChange={e => setPayCoin(e.detail.value!)}>
+          <IonSegment scrollable={true} mode="md" value={selectCoin} onIonChange={e => setPayCoin(e.detail.value!)}>
               {renderPayCoins(coins)}
           </IonSegment>
           <IonGrid>

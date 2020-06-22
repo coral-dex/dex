@@ -4,6 +4,7 @@ import utils from "../common/utils";
 import {Bill, BlanceOfCoin, Deal, Order, PairInfo, PairVolumeInfo} from "../types/types";
 import service from "../service/service";
 import config from "./config";
+import {rejects} from "assert";
 
 const seropp = require('sero-pp');
 const serojs = require('serojs');
@@ -58,22 +59,30 @@ class Coral {
 
     async pairInfo(exchangeCoin:string,coin:string):Promise<PairInfo>{
         const rest:any = await this.callExchange("pairInfo","",[exchangeCoin,coin])
+        console.log("pairInfo>>>",rest);
         return new Promise((resolve) => {
-            const data:any = utils.convertResult(rest[0]);
-            const buyOrdersArr = data[0]
-            const sellOrdersArr = data[1]
-            const decimal = service.getDecimalCache(coin);
-            const ret:PairInfo = {
-                buyOrders:buildOrders(buyOrdersArr,decimal),
-                sellOrders:buildOrders(sellOrdersArr,decimal),
-            };
-            resolve(ret)
+            try{
+                const data:any = utils.convertResult(rest[0]);
+                console.log("pairInfo data>>>",data);
+                const buyOrdersArr = data[0]
+                const sellOrdersArr = data[1]
+                const decimal = service.getDecimalCache(coin);
+                const ret:PairInfo = {
+                    buyOrders:buildOrders(buyOrdersArr,decimal),
+                    sellOrders:buildOrders(sellOrdersArr,decimal),
+                };
+                console.log("pairInfo ret>>>",ret);
+                resolve(ret)
+            }catch (e) {
+                rejects(e)
+            }
         })
     }
 
     async orders(mainPKr:string,exchangeCoin:string,coin:string):Promise<Array<Order>>{
         const decimal = await service.getDecimal(coin);
         const rest:any = await this.callExchangeBase("pendintOrders",mainPKr,[exchangeCoin,coin])
+        console.log("pendintOrders>>>",rest);
         return new Promise((resolve) => {
             const orderArr = utils.convertResult(rest[0]);
             resolve(buildOrders(orderArr,decimal))
@@ -246,26 +255,31 @@ class Coral {
 }
 
 function buildOrders(arr:Array<any>,decimal:number,isAll?:boolean):Array<Order>{
-    const orders:Array<Order> = [];
-    if(arr){
-        for(let d of arr){
-            if(d[8] === "0" || isAll){
-                orders.push({
-                    id:d[0],
-                    owner:d[1],
-                    receiverAddr:d[2],
-                    opData:d[3],
-                    price:utils.fromValue(d[4],decimal),
-                    value:utils.fromValue(d[5],18),
-                    dealValue:utils.fromValue(d[6],18),
-                    createTime:d[7],
-                    status:d[8],
-                    orderType:d[9],
-                })
+    try{
+        const orders:Array<Order> = [];
+        console.log("orders>>>",arr);
+        if(arr){
+            for(let d of arr){
+                if(d[5] === "0" || isAll){
+                    orders.push({
+                        id:d[0],
+                        // owner:d[1],
+                        // receiverAddr:d[2],
+                        // opData:d[3],
+                        price:utils.fromValue(d[1],decimal),
+                        value:utils.fromValue(d[2],18),
+                        dealValue:utils.fromValue(d[3],18),
+                        createTime:d[4],
+                        status:d[5],
+                        orderType:d[6],
+                    })
+                }
             }
         }
+        return orders;
+    }catch (e) {
+        throw e
     }
-    return orders;
 }
 
 function converState(v:any) {

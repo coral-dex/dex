@@ -130,7 +130,8 @@ class Assets extends React.Component<State, any>{
             }
         }
         this.setState({
-            list:list
+            list:list,
+            searchText:v
         })
     }
 
@@ -177,13 +178,16 @@ class Assets extends React.Component<State, any>{
     withdrawConfirm(o:any){
         const that = this;
         if(o && o["amount"]){
+            if(parseFloat(o["amount"]) === 0){
+                return;
+            }
             const value:any = o["amount"];
             const {info,selectAccount} = this.state;
             if(info){
                 const decimal = service.getDecimalCache(info.coin);
                 const amount = utils.toValue(value,decimal);
                 if(amount.comparedTo(info.amount.minus(info.lockedAmount)) === -1){
-                    alert("余额不够")
+                    alert("not enough balance")
                     return
                 }
                 coral.withdraw(selectAccount.PK,selectAccount.MainPKr,info.coin,amount).then(hash=>{
@@ -265,7 +269,7 @@ class Assets extends React.Component<State, any>{
 
                     <IonModal isOpen={showModal}>
                         <BillsContainer bills={bills} showMore={showMore} info={info} pageNo={pageNo} showBill={this.showBill}/>
-                        <IonButton onClick={() => this.setShowModal(false)}>Close</IonButton>
+                        <IonButton onClick={() => this.setShowModal(false)}>{i18n.t("close")}</IonButton>
                     </IonModal>
 
                     <IonAlert

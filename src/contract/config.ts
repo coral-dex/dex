@@ -1,7 +1,7 @@
 class Config {
 
     exchange:any = {
-        address:"3FziqJnybzA7cHUUKqKTfjNzbzrm16phD5vWF46nVF6Jsk3bqGxcFG3u3RSsD4tf7ECW9fBXvT1Sq74JmTNPdRQy",
+        address:"TFTqXs1T6b3UQ4VEP7PTHcf5fckqwb6txL7EL59ZaEkA1bQpEKUmnWtA9YEecLphaXMq4kzwkk92zoBaLtEGDsL",
 
         abi:[
             {
@@ -97,36 +97,6 @@ class Config {
                 "outputs": [],
                 "payable": false,
                 "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "constant": false,
-                "inputs": [
-                    {
-                        "name": "exchangeCoin",
-                        "type": "string"
-                    },
-                    {
-                        "name": "price",
-                        "type": "uint256"
-                    },
-                    {
-                        "name": "value",
-                        "type": "uint256"
-                    },
-                    {
-                        "name": "receiverAddr",
-                        "type": "address"
-                    },
-                    {
-                        "name": "opData",
-                        "type": "bytes"
-                    }
-                ],
-                "name": "bigCustomerBuy",
-                "outputs": [],
-                "payable": true,
-                "stateMutability": "payable",
                 "type": "function"
             },
             {
@@ -255,18 +225,6 @@ class Config {
                                         "type": "uint256"
                                     },
                                     {
-                                        "name": "owner",
-                                        "type": "address"
-                                    },
-                                    {
-                                        "name": "receiverAddr",
-                                        "type": "address"
-                                    },
-                                    {
-                                        "name": "opData",
-                                        "type": "bytes"
-                                    },
-                                    {
                                         "name": "price",
                                         "type": "uint256"
                                     },
@@ -289,6 +247,10 @@ class Config {
                                     {
                                         "name": "orderType",
                                         "type": "bool"
+                                    },
+                                    {
+                                        "name": "payCoinValue",
+                                        "type": "uint256"
                                     }
                                 ],
                                 "name": "buyOrders",
@@ -301,18 +263,6 @@ class Config {
                                         "type": "uint256"
                                     },
                                     {
-                                        "name": "owner",
-                                        "type": "address"
-                                    },
-                                    {
-                                        "name": "receiverAddr",
-                                        "type": "address"
-                                    },
-                                    {
-                                        "name": "opData",
-                                        "type": "bytes"
-                                    },
-                                    {
                                         "name": "price",
                                         "type": "uint256"
                                     },
@@ -335,6 +285,10 @@ class Config {
                                     {
                                         "name": "orderType",
                                         "type": "bool"
+                                    },
+                                    {
+                                        "name": "payCoinValue",
+                                        "type": "uint256"
                                     }
                                 ],
                                 "name": "sellOrders",
@@ -347,6 +301,32 @@ class Config {
                 ],
                 "payable": false,
                 "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "constant": false,
+                "inputs": [
+                    {
+                        "name": "exchangeCoin",
+                        "type": "string"
+                    },
+                    {
+                        "name": "price",
+                        "type": "uint256"
+                    },
+                    {
+                        "name": "receiverAddr",
+                        "type": "address"
+                    },
+                    {
+                        "name": "opData",
+                        "type": "bytes"
+                    }
+                ],
+                "name": "bigCustomerBuy",
+                "outputs": [],
+                "payable": true,
+                "stateMutability": "payable",
                 "type": "function"
             },
             {
@@ -395,10 +375,11 @@ class Config {
                 "type": "function"
             }
         ]
+
     }
 
     exchangeBase:any = {
-        address:"4AArM9UDqAPJzijoHnP4aP9CjwjZAu1eCb89MjM47yrRc2GjaGBF1HjJiTMHkTPX55wdon1ifGkaDAYv8rG5mHZX",
+        address:"oKFpX71C38Js31w7eLrvm4avvripF7crJhqSsfyeu6M8EUNTG9GD1mpjdYzYCDPx1HHQXLZ2eN2b7Bvx1k8BSrV",
 
         abi:[
             {
@@ -588,18 +569,6 @@ class Config {
                                 "type": "uint256"
                             },
                             {
-                                "name": "owner",
-                                "type": "address"
-                            },
-                            {
-                                "name": "receiverAddr",
-                                "type": "address"
-                            },
-                            {
-                                "name": "opData",
-                                "type": "bytes"
-                            },
-                            {
                                 "name": "price",
                                 "type": "uint256"
                             },
@@ -622,6 +591,10 @@ class Config {
                             {
                                 "name": "orderType",
                                 "type": "bool"
+                            },
+                            {
+                                "name": "payCoinValue",
+                                "type": "uint256"
                             }
                         ],
                         "name": "orders",
@@ -657,18 +630,6 @@ class Config {
                                 "type": "uint256"
                             },
                             {
-                                "name": "owner",
-                                "type": "address"
-                            },
-                            {
-                                "name": "receiverAddr",
-                                "type": "address"
-                            },
-                            {
-                                "name": "opData",
-                                "type": "bytes"
-                            },
-                            {
                                 "name": "price",
                                 "type": "uint256"
                             },
@@ -691,33 +652,14 @@ class Config {
                             {
                                 "name": "orderType",
                                 "type": "bool"
+                            },
+                            {
+                                "name": "payCoinValue",
+                                "type": "uint256"
                             }
                         ],
                         "name": "",
                         "type": "tuple[]"
-                    }
-                ],
-                "payable": false,
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "constant": true,
-                "inputs": [
-                    {
-                        "name": "exchangeCoin",
-                        "type": "string"
-                    },
-                    {
-                        "name": "payCoin",
-                        "type": "string"
-                    }
-                ],
-                "name": "allOrderIds",
-                "outputs": [
-                    {
-                        "name": "orders",
-                        "type": "uint256[]"
                     }
                 ],
                 "payable": false,

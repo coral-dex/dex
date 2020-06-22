@@ -25,9 +25,9 @@ export interface Minute {
 
 export interface Order {
     id: number;
-    owner: string;
-    receiverAddr: string;
-    opData:string;
+    // owner: string;
+    // receiverAddr: string;
+    // opData:string;
     price: BigNumber;
     value: BigNumber;
     dealValue: BigNumber;

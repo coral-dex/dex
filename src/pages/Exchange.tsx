@@ -259,6 +259,10 @@ class Exchange extends React.Component<State, any>{
     }
 
     setPrice(v:any){
+        const v4 = /^([1-9]\d{0,15}|0)(\.\d{1,4})?$/;
+        if(!v4.test(v)){
+            return
+        }
         const {opType} = this.state;
         let value = v;
         if(!value){
@@ -275,6 +279,10 @@ class Exchange extends React.Component<State, any>{
     }
 
     setAmount(v:any){
+        const v4 = /^([1-9]\d{0,15}|0)(\.\d{1,4})?$/;
+        if(!v4.test(v)){
+            return
+        }
         const {opType} = this.state;
         let value = v;
         if(!value){
@@ -303,7 +311,7 @@ class Exchange extends React.Component<State, any>{
 
     sellConfirm(){
         const {price,amount,total,info,selectAccount,opType,useCoralBalance} = this.state;
-        if(!price || !amount){
+        if(!price || !amount || parseFloat(price)===0 || parseFloat(amount) ===0 ){
             return;
         }
         if(info){
@@ -331,7 +339,7 @@ class Exchange extends React.Component<State, any>{
 
     buyConfirm(){
         const {price,amount,total,info,selectAccount,useCoralBalance} = this.state;
-        if(!price || !amount){
+        if(!price || !amount || parseFloat(price)===0 || parseFloat(amount) ===0 ){
             return;
         }
         if(info){
@@ -606,7 +614,7 @@ class Exchange extends React.Component<State, any>{
 
                                 <div style={{padding: "0 0 0 15px"}}>
                                     <div className={"text-item"}>{i18n.t("price")}({info?.payCoin})</div>
-                                    <IonInput mode="ios" placeholder={"0.0000"} pattern={"/^(\\d+|\\d+\\.\\d{1,2})$/"} color={"dark"} inputmode={"decimal"} value={price} min="0" type="number"  onIonChange={e => this.setPrice(e.detail.value!)}/>
+                                    <IonInput mode="ios" placeholder={"0.0000"} color={"dark"} inputmode={"decimal"} value={price} min="0" type="number"  onIonChange={e => this.setPrice(e.detail.value!)}/>
                                     <div className={"text-item"}>{i18n.t("amount")}({info?.exchangeCoin})</div>
                                     <IonInput mode="ios" placeholder={"0.0000"} color={"dark"} inputmode={"decimal"} min="0" value={amount} type="number"  onIonChange={e => this.setAmount(e.detail.value !)}/>
                                     <div style={{position: "absolute", right: 0}} className={"text-item"}>{this.getBalance()} {exchangeUnit}</div>

@@ -30,5 +30,6 @@
   "ok":"わかった",
   "loadMore":"さらに読み込む",
   "completed": "完了",
-  "canceled": "キャンセル"
+  "canceled": "キャンセル",
+  "depth": "深さ"
 }

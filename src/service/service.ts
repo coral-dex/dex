@@ -37,7 +37,7 @@ class Service {
             }else{
                 axios.post(host, data).then((resp: any) => {
                     if(resp.data && resp.data.error){
-                        reject(new Error(resp.data.error.message))
+                        reject(resp.data.error.message)
                     }else if(resp.data && resp.data.result){
                         resolve(resp.data.result)
                     }

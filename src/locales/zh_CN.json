@@ -13,7 +13,7 @@
   "available": "可用",
   "useExchangeBalance": "使用交易所账户",
   "currentOrders": "当前委托",
-  "allOrders": "全部委托",
+  "allOrders": "历史委托",
   "myBills": "我的成交",
   "operation": "操作",
   "opType": "类型",
@@ -30,5 +30,6 @@
   "ok": "确定",
   "loadMore": "加载更多",
   "completed": "已成交",
-  "canceled": "已撤销"
+  "canceled": "已撤销",
+  "depth": "深度合并"
 }

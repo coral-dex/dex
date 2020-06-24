@@ -68,10 +68,9 @@ class Coral {
                 const sellOrdersArr = data[1]
                 const decimal = service.getDecimalCache(coin);
                 const ret:PairInfo = {
-                    buyOrders:buildOrders(buyOrdersArr,decimal,true),
-                    sellOrders:buildOrders(sellOrdersArr,decimal,true),
+                    buyOrders:buildOrders(buyOrdersArr,decimal,false),
+                    sellOrders:buildOrders(sellOrdersArr,decimal,false),
                 };
-                console.log("pairInfo ret>>>",ret);
                 resolve(ret)
             }catch (e) {
                 rejects(e)
@@ -85,7 +84,7 @@ class Coral {
         console.log("pendintOrders>>>",rest);
         return new Promise((resolve) => {
             const orderArr = utils.convertResult(rest[0]);
-            resolve(buildOrders(orderArr,decimal))
+            resolve(buildOrders(orderArr,decimal,true))
         })
     }
 
@@ -93,7 +92,6 @@ class Coral {
         const decimalEx = await service.getDecimal(coin);
         const decimalCoin = await service.getDecimal(coin);
         const rest:any = await this.callExchangeBase("pairVolumeOf24H",mainPKr,[exchangeCoin,coin])
-        console.log("pairVolumeOf24H>>>",rest);
         return new Promise((resolve) => {
             const retArr:Array<BigNumber> = [];
             retArr.push(utils.fromValue(rest[0],decimalCoin))

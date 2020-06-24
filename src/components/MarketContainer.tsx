@@ -6,7 +6,6 @@ import {
     IonSearchbar, IonSegment, IonSegmentButton,
 } from "@ionic/react";
 import {PairVolumeInfo} from "../types/types";
-import {storage} from "../common/storage";
 import utils from "../common/utils";
 import i18n from "../i18n";
 
@@ -39,13 +38,13 @@ const MarketContainer: React.FC<ContainerProps> = ({ list,onSearch,searchText,se
     for (let i = 0; i < list.length; i++) {
         const data = list[i];
         let color = "success";
-        let symbol = "";
+        let symbol = "+";
         let percent: string = "0";
         if (data.startPrice.comparedTo(0) > 0) {
             percent = data.lastPrice.minus(data.startPrice).multipliedBy(100).dividedBy(data.startPrice).toFixed(2);
             if (data.lastPrice.minus(data.startPrice).comparedTo(0) < 0) {
                 color = "danger";
-                // symbol = "-";
+                symbol = "";
             }
         }
 

@@ -97,7 +97,5 @@ export default {
     goPage(path:string){
         window.location.href = "#"+path;
     }
-
-
 }
 

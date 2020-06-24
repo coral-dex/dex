@@ -12,8 +12,8 @@
   "amount": "Amount",
   "available": "Available",
   "useExchangeBalance": "Use Exchange Balance",
-  "currentOrders": "Current Orders",
-  "allOrders": "All Orders",
+  "currentOrders": "Current",
+  "allOrders": "History",
   "myBills": "My Deals",
   "operation": "Operation",
   "opType": "Type",
@@ -30,5 +30,6 @@
   "ok": "OK",
   "loadMore": "Load More",
   "completed": "Completed",
-  "canceled": "Canceled"
+  "canceled": "Canceled",
+  "depth": "Depth"
 }

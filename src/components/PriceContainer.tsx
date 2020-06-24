@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+    IonButton,
     IonCol, IonItem, IonLabel,
     IonRow,
     IonText
@@ -12,15 +13,20 @@ import i18n from "../i18n";
 
 interface ContainerProps {
     detail?: PairInfo;
-    lastPrice?:any;
+    vol24:Array<BigNumber>
     payCoin:string;
     exchangeCoin:string;
     setAmountAndPrice:(price:any,amount?:any)=>void;
 }
 
-const PriceContainer: React.FC<ContainerProps> = ({detail,lastPrice,payCoin,exchangeCoin,setAmountAndPrice}) => {
+const PriceContainer: React.FC<ContainerProps> = ({detail,vol24,payCoin,exchangeCoin,setAmountAndPrice}) => {
     const height: number = document.documentElement.clientHeight * 0.5;
     //(421-44)/421*11/421*5
+
+    let latestPrice = "0.0000";
+    if(vol24.length >= 3){
+        latestPrice = vol24[1].toFixed(4,1)
+    }
 
     const buyList:Array<any> = [];
     const sellList:Array<any> = [];
@@ -33,7 +39,7 @@ const PriceContainer: React.FC<ContainerProps> = ({detail,lastPrice,payCoin,exch
             const sortMap:Map<string,BigNumber> = new Map();
             const sortArr:Array<string> = [];
             for(let d of detail.buyOrders){
-                const key = d.price.toFixed(utils.priceFixed())
+                const key = d.price.toFixed(utils.priceFixed(),1);
                 const amount = d.value.minus(d.dealValue);
                 if(sortMap.has(key)){
                     let value:any = sortMap.get(key);
@@ -58,15 +64,16 @@ const PriceContainer: React.FC<ContainerProps> = ({detail,lastPrice,payCoin,exch
             for(let price of sortedArray){
                 const amount:any = sortMap.get(price);
                 itemTotal = itemTotal.plus(amount)
+                const tmp = itemTotal.toFixed(utils.amountFixed());
                 buyList.push(
-                    <IonRow onClick={()=>{setAmountAndPrice(price,amount.toFixed(utils.amountFixed()))}}>
+                    <IonRow onClick={()=>{setAmountAndPrice(price,tmp)}}>
                         <IonCol size="2">
                             <IonText mode="ios" className={"text-item-buy"}>{++i}</IonText>
                         </IonCol>
                         <IonCol size="10">
                             <IonText mode="ios" className={"text-item-buy"}>{price}</IonText>
                             <IonText mode="ios" className={"text-item-amount"}>{amount.toFixed(utils.amountFixed())}</IonText>
-                            <span className="dynamic_changes_b bg-buy-color" style={{width: itemTotal.multipliedBy(100).dividedBy(total).toFixed(6)+"%"}}/>
+                            <span className="dynamic_changes bg-buy-color" style={{width: itemTotal.multipliedBy(100).dividedBy(total).toFixed(6)+"%"}}/>
                         </IonCol>
                     </IonRow>
                 )
@@ -104,8 +111,9 @@ const PriceContainer: React.FC<ContainerProps> = ({detail,lastPrice,payCoin,exch
             for(let i=sortedArray.length-1;i>=0;i--){
                 const price = sortedArray[i];
                 const amount:any = sortMap.get(price)
+                const tmp = itemTotal.toFixed(utils.amountFixed());
                 sellList.push(
-                    <IonRow onClick={()=>{setAmountAndPrice(price,amount.toFixed(utils.amountFixed()))}}>
+                    <IonRow onClick={()=>{setAmountAndPrice(price,tmp)}}>
                         <IonCol size="2">
                             <IonText mode="ios" className={"text-item-sell"}>{i+1}</IonText>
                         </IonCol>
@@ -117,6 +125,21 @@ const PriceContainer: React.FC<ContainerProps> = ({detail,lastPrice,payCoin,exch
                     </IonRow>
                 )
                 itemTotal = itemTotal.minus(amount)
+            }
+        }
+    }
+
+    let color = "success";
+    let symbol = "+";
+    let percent: string = "0";
+    if(vol24 && vol24.length>=3){
+        const startPrice= vol24[0];
+        const lastPrice= vol24[1];
+        if (startPrice.comparedTo(0) > 0) {
+            percent = lastPrice.minus(startPrice).multipliedBy(100).dividedBy(startPrice).toFixed(2);
+            if (lastPrice.minus(startPrice).comparedTo(0) < 0) {
+                color = "danger";
+                symbol = "";
             }
         }
     }
@@ -133,23 +156,19 @@ const PriceContainer: React.FC<ContainerProps> = ({detail,lastPrice,payCoin,exch
                 {sellList}
             </div>
             <div style={{overflowY: "scroll", height: (height - 44) / 11 * 1}}>
-                <IonRow onClick={()=>{setAmountAndPrice(lastPrice)}}>
-                    <IonCol size="12" >
-                        <IonText mode="ios" className={"text-item-current"}>{lastPrice}</IonText>
+                <IonRow onClick={()=>{setAmountAndPrice(latestPrice)}}>
+                    <IonCol size="6" >
+                        <IonText mode="ios" className={"text-style"} style={{fontWeight:800}} color={color}>{latestPrice}</IonText>
                     </IonCol>
-                {/*    <IonCol size="1">*/}
-                {/*        <IonText mode="ios" className={"text-item"}>≈</IonText>*/}
-                {/*    </IonCol>*/}
-                {/*    <IonCol size="5">*/}
-                {/*        <IonText mode="ios" className={"text-item"}>¥0.0000</IonText>*/}
-                {/*    </IonCol>*/}
+                    <IonCol size="6">
+                        <IonText mode="ios" className={"text-style"} style={{fontWeight:800}} color={color}>{symbol}{percent}%</IonText>
+                    </IonCol>
                 </IonRow>
             </div>
 
             <div style={{overflowY: "scroll", height: (height - 44) / 11 * 5}}>
                 {buyList}
             </div>
-
         </>
     );
 };

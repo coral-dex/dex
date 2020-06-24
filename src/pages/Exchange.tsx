@@ -30,7 +30,7 @@ import {
 import './quotes.css'
 import OrdersContainer from "../components/OrdersContainer";
 import PriceContainer from "../components/PriceContainer";
-import {person, ellipsisVerticalOutline,trashOutline,close} from 'ionicons/icons'
+import {person,chevronDown, ellipsisVerticalOutline,trashOutline,close} from 'ionicons/icons'
 import service from "../service/service";
 import utils from "../common/utils";
 import {storage} from "../common/storage";
@@ -70,6 +70,7 @@ interface State {
     showActionSheet:boolean
     bills:Array<Bill>
     vol24:Array<BigNumber>
+    ulDisplay:string
 }
 
 function scrollBottom() {
@@ -77,7 +78,9 @@ function scrollBottom() {
     id = setInterval(function () {
         const div = document.getElementById("sellScroll");
         if(div) {
-            div.scrollTop = div.scrollHeight;
+            setTimeout(function () {
+                div.scrollTop = div.scrollHeight;
+            },1000)
             clearInterval(id)
         }
     },100)
@@ -111,7 +114,8 @@ class Exchange extends React.Component<State, any>{
         useCoralBalance:false,
         showActionSheet:false,
         bills:[],
-        vol24:[]
+        vol24:[],
+        ulDisplay:"none"
     }
 
     componentDidMount(): void {
@@ -238,10 +242,11 @@ class Exchange extends React.Component<State, any>{
     }
 
     setOpType =(v:any)=>{
+        const that = this;
         const {price,amount} = this.state;
         this.setState({
             opType:v,
-            total: "buy" === v ?new BigNumber(price?price:"0").multipliedBy(new BigNumber(amount?amount:"0")).toFixed(utils.balanceFixed(),1):price?new BigNumber(amount?amount:"0").multipliedBy(new BigNumber(price)).toFixed(utils.balanceFixed(),1):"0.0000"
+            total: that.calTotal(v,price,amount).toFixed(utils.amountFixed(),1),
         })
     }
 
@@ -277,6 +282,7 @@ class Exchange extends React.Component<State, any>{
     }
 
     setPrice(v:any){
+        const that = this;
         const v4 = /^([1-9]\d{0,15}|0)(\.\d{1,4})?$/;
         if(!v4.test(v)){
             return
@@ -292,11 +298,13 @@ class Exchange extends React.Component<State, any>{
 
         this.setState({
             price:v,
-            total: "buy" === opType ?new BigNumber(value).multipliedBy(new BigNumber(amount?amount:"0")).toFixed(utils.priceFixed(),1):new BigNumber(amount?amount:"0").multipliedBy(new BigNumber(value)).toFixed(utils.priceFixed(),1)
+            total: that.calTotal(opType,value,amount).toFixed(utils.amountFixed(),1),
+
         })
     }
 
     setAmount(v:any){
+        const that = this;
         const v4 = /^([1-9]\d{0,15}|0)(\.\d{1,4})?$/;
         if(!v4.test(v)){
             return
@@ -311,12 +319,12 @@ class Exchange extends React.Component<State, any>{
         const {price} = this.state;
         this.setState({
             amount:v,
-            total: "buy" === opType ?new BigNumber(price?price:"0").multipliedBy(new BigNumber(value)).toFixed(utils.priceFixed(),1):new BigNumber(value).multipliedBy(new BigNumber(price?price:"0")).toFixed(utils.priceFixed(),1)
+            total:that.calTotal(opType,price,value).toFixed(utils.amountFixed(),1),
         })
     }
 
 
-    setRange = (v:any)=>{
+    setRange(v:any){
         const balance = this.getBalance()
         const {price,opType} = this.state;
         const amount = new BigNumber(v).multipliedBy(balance).div(100);
@@ -350,13 +358,16 @@ class Exchange extends React.Component<State, any>{
             }else{
                 coral.sellFromWallet(selectAccount.PK,selectAccount.MainPKr,info.payCoin,priceValue,info.exchangeCoin,amountValue).then(rest=>{
                     this.setAmount(0)
-                }).catch()
+                }).catch(e=>{
+                    const err = typeof e == 'string'?e:e.message;
+                    alert(err);
+                })
             }
         }
     }
 
     buyConfirm(){
-        const {price,amount,total,info,selectAccount,useCoralBalance} = this.state;
+        const {price,amount,total,info,selectAccount,useCoralBalance,opType} = this.state;
         if(!price || !amount || parseFloat(price)===0 || parseFloat(amount) ===0 ){
             return;
         }
@@ -368,7 +379,8 @@ class Exchange extends React.Component<State, any>{
             }
             const priceValue = utils.toValue(price,service.getDecimalCache(info.payCoin));
             const amountValue = utils.toValue(amount,service.getDecimalCache(info.exchangeCoin));
-            const totalValue = utils.toValue(total,service.getDecimalCache(info.exchangeCoin));
+            const totalValue =  utils.toValue(this.calTotal(opType,price,amount),service.getDecimalCache(info.exchangeCoin));
+                //utils.toValue(total,service.getDecimalCache(info.exchangeCoin));
 
             if(useCoralBalance){
                 coral.buy(selectAccount.PK,selectAccount.MainPKr,info.exchangeCoin,info.payCoin,priceValue,amountValue).then(rest=>{
@@ -377,9 +389,16 @@ class Exchange extends React.Component<State, any>{
             }else{
                 coral.buyFromWallet(selectAccount.PK,selectAccount.MainPKr,info.exchangeCoin,priceValue,amountValue,totalValue,info.payCoin).then(rest=>{
                     this.setAmount(0)
-                }).catch()
+                }).catch(e=>{
+                    const err = typeof e == 'string'?e:e.message;
+                    alert(err);
+                })
             }
         }
+    }
+
+    calTotal(opType:string,price:any,amount:any):BigNumber{
+        return new BigNumber(price?price:"0").multipliedBy(new BigNumber(amount?amount:"0"));
     }
 
     cancel = (id:any)=>{
@@ -502,7 +521,8 @@ class Exchange extends React.Component<State, any>{
             }else if(v === "myBill"){
                 coral.getExBills(selectAccount.MainPKr,info.exchangeCoin).then((rest:any)=>{
                     that.setState({
-                        bills:rest
+                        bills:rest ,
+                        loadMore:false
                     })
                 });
             }else{
@@ -570,18 +590,30 @@ class Exchange extends React.Component<State, any>{
         }
     }
 
+    showSelect = ()=>{
+        const that = this;
+        const {ulDisplay} = this.state;
+        that.setState({
+            ulDisplay: ulDisplay === "block"?"none":"block"
+        })
+    }
+
+    setFixed(v:any){
+        storage.set(storage.keys.fixed.price,v)
+        this.setState({
+            ulDisplay:"none"
+        })
+    }
+
     render(): React.ReactNode {
         const {info,accounts,selectAccount,detail,opType,
             price,amount,rangeValue,total,orders,searchText,
-            selectCoin,list,payCoins,showLoading,showPopover,vol24,
+            selectCoin,list,payCoins,showLoading,showPopover,vol24,ulDisplay,
             orderType,pageNo,loadMore,useCoralBalance,showActionSheet,bills} = this.state;
 
         const options = this.renderAccountsOp(accounts)
         // const data = this.renderData();
-        let latestPrice = "0.0000";
-        if(vol24.length === 3){
-            latestPrice = vol24[1].toFixed(utils.priceFixed())
-        }
+
         let exchangeUnit = info?.payCoin
         // let volUnit = info?.exchangeCoin;
         let btn = <IonButton mode="ios" expand={"full"} size={"small"} style={{width: '100%'}} color={"success"} onClick={()=>{this.buyConfirm()}}>{i18n.t("buy")}</IonButton>
@@ -591,6 +623,10 @@ class Exchange extends React.Component<State, any>{
             btn = <IonButton mode="ios" expand={"full"} size={"small"} style={{width: '100%'}} color={"danger"} onClick={()=>{this.sellConfirm()}}>{i18n.t("sell")}</IonButton>
         }
 
+        let fixed = storage.get(storage.keys.fixed.price);
+        if(fixed){
+            fixed = new BigNumber(1).div(new BigNumber(10).pow(new BigNumber(fixed))).toString(10);
+        }
         return (
             <IonPage>
                 <IonContent>
@@ -660,21 +696,19 @@ class Exchange extends React.Component<State, any>{
                                 </div>
                             </IonCol>
                             <IonCol size={"6"}>
-                                <PriceContainer detail={detail} lastPrice={latestPrice} exchangeCoin={info?.exchangeCoin as string} payCoin={info?.payCoin as string} setAmountAndPrice={this.setAmountAndPrice}/>
-                                {/*<IonPopover*/}
-                                {/*    isOpen={showPopover}*/}
-                                {/*    cssClass='my-custom-class'*/}
-                                {/*    onDidDismiss={e => this.setShowPopover(false)}*/}
-                                {/*>*/}
-                                {/*    <div>0.000001</div>*/}
-                                {/*    <div>0.00001</div>*/}
-                                {/*    <div>0.0001</div>*/}
-                                {/*    <div>0.001</div>*/}
-                                {/*    <div>0.01</div>*/}
-                                {/*    <div>0.1</div>*/}
-                                {/*</IonPopover>*/}
-                                {/*<div onClick={()=>{this.setShowPopover(true)}}*/}
-                                {/*>0.0001<IonIcon icon={chevronDown}/></div>*/}
+                                <PriceContainer detail={detail} vol24={vol24} exchangeCoin={info?.exchangeCoin as string} payCoin={info?.payCoin as string} setAmountAndPrice={this.setAmountAndPrice}/>
+                                <div style={{marginTop:"5px"}}>
+                                    <IonRow className="fixed-select" onClick={this.showSelect}>
+                                        <IonCol size={"10"} >{i18n.t("depth")} {fixed}</IonCol>
+                                        <IonCol size={"2"} style={{float:"right"}}><IonIcon icon={chevronDown}/></IonCol>
+                                    </IonRow>
+                                    <ul className="fixed" style={{display:ulDisplay}}>
+                                        <li onClick={()=>{this.setFixed(4)}}>0.0001</li>
+                                        <li onClick={()=>{this.setFixed(3)}}>0.001</li>
+                                        <li onClick={()=>{this.setFixed(2)}}>0.01</li>
+                                        <li onClick={()=>{this.setFixed(1)}}>0.1</li>
+                                    </ul>
+                                </div>
                             </IonCol>
                         </IonRow>
                     </IonGrid>

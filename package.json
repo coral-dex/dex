@@ -159,5 +159,8 @@
     "presets": [
       "react-app"
     ]
+  },
+  "devDependencies": {
+    "web3-providers-ws": "^1.2.9"
   }
 }

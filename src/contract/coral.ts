@@ -68,8 +68,8 @@ class Coral {
                 const sellOrdersArr = data[1]
                 const decimal = service.getDecimalCache(coin);
                 const ret:PairInfo = {
-                    buyOrders:buildOrders(buyOrdersArr,decimal),
-                    sellOrders:buildOrders(sellOrdersArr,decimal),
+                    buyOrders:buildOrders(buyOrdersArr,decimal,true),
+                    sellOrders:buildOrders(sellOrdersArr,decimal,true),
                 };
                 console.log("pairInfo ret>>>",ret);
                 resolve(ret)
@@ -88,6 +88,21 @@ class Coral {
             resolve(buildOrders(orderArr,decimal))
         })
     }
+
+    async pairVolumeOf24H(mainPKr:string,exchangeCoin:string,coin:string):Promise<Array<any>>{
+        const decimalEx = await service.getDecimal(coin);
+        const decimalCoin = await service.getDecimal(coin);
+        const rest:any = await this.callExchangeBase("pairVolumeOf24H",mainPKr,[exchangeCoin,coin])
+        console.log("pairVolumeOf24H>>>",rest);
+        return new Promise((resolve) => {
+            const retArr:Array<BigNumber> = [];
+            retArr.push(utils.fromValue(rest[0],decimalCoin))
+            retArr.push(utils.fromValue(rest[1],decimalCoin))
+            retArr.push(utils.fromValue(rest[2],decimalEx))
+            resolve(retArr)
+        })
+    }
+
 
     async allOrders(mainPKr:string,exchangeCoin:string,coin:string,offset:number,limit:number):Promise<AllOrder>{
         const decimal = await service.getDecimal(coin);
@@ -254,13 +269,13 @@ class Coral {
     }
 }
 
-function buildOrders(arr:Array<any>,decimal:number,isAll?:boolean):Array<Order>{
+function buildOrders(arr:Array<any>,decimal:number,showAll?:boolean):Array<Order>{
     try{
         const orders:Array<Order> = [];
         console.log("orders>>>",arr);
         if(arr){
             for(let d of arr){
-                if(d[5] === "0" || isAll){
+                if(d[5] === "0" || showAll){
                     orders.push({
                         id:d[0],
                         // owner:d[1],

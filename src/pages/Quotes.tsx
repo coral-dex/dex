@@ -15,7 +15,6 @@ import {storage} from "../common/storage";
 import {PairVolumeInfo} from "../types/types";
 import MarketContainer from "../components/MarketContainer";
 import utils from "../common/utils";
-import {createHashHistory} from 'history';
 
 interface State {
     searchText: string
@@ -39,7 +38,18 @@ class Quotes extends React.Component<State, any> {
     }
 
     componentDidMount(): void {
-        this.getDatas().catch()
+        const that = this;
+
+        let intervalId:any = sessionStorage.getItem("intervalId2");
+        if(intervalId){
+            clearInterval(intervalId);
+        }
+        intervalId = setInterval(function () {
+            that.getDatas().catch()
+        },5*1000);
+        sessionStorage.setItem("intervalId1",intervalId);
+        this.setShowLoading(true);
+        that.getDatas().catch()
     }
 
     setSearchText=(v: string)=>{
@@ -63,7 +73,7 @@ class Quotes extends React.Component<State, any> {
     }
 
     async getDatas(payCoin?:string) {
-        this.setShowLoading(true);
+
         const payCoins: any = await coral.getPayCoins();
         let datas: Array<PairVolumeInfo> = [];
         let selectCoin: any = '';
@@ -98,7 +108,8 @@ class Quotes extends React.Component<State, any> {
     goExchange(data: any){
         storage.set(storage.keys.pairs, data)
         setTimeout(function () {
-            window.location.href = "#/exchange/"+data.payCoin +"/"+data.exchangeCoin;
+            utils.goPage("/exchange/"+data.payCoin +"/"+data.exchangeCoin)
+            // window.location.href = "/exchange/"+data.payCoin +"/"+data.exchangeCoin;
             // createHashHistory().push("/exchange/"+data.payCoin +"/"+data.exchangeCoin)
         },100)
     }

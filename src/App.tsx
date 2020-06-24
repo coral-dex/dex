@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect, Route } from 'react-router-dom';
+import {Redirect, Route, Switch} from 'react-router-dom';
 import {
   IonApp,
   IonIcon,
@@ -9,8 +9,8 @@ import {
   IonTabButton,
   IonTabs
 } from '@ionic/react';
-import { IonReactRouter,IonReactHashRouter } from '@ionic/react-router';
-import { podiumOutline,statsChartOutline, swapHorizontalOutline, walletOutline } from 'ionicons/icons';
+import { IonReactRouter,IonReactHashRouter,IonReactMemoryRouter } from '@ionic/react-router';
+import { statsChartOutline, swapHorizontalOutline, walletOutline } from 'ionicons/icons';
 import Quotes from './pages/Quotes';
 import Exchange from './pages/Exchange';
 import Assets from './pages/Assets';
@@ -46,12 +46,14 @@ class App extends React.Component<any, any>{
     return <IonApp>
       <IonReactHashRouter>
         <IonTabs>
-          <IonRouterOutlet>
-            <Route path="/quotes" component={Quotes} exact={true} />
-            <Route path="/exchange/:payCoin/:exchangeCoin" component={Exchange} exact={true} />
-            <Route path="/exchange" component={Exchange} exact={true} />
-            <Route path="/assets" component={Assets} />
-            <Route path="/" render={() => <Redirect to="/quotes" />} exact={true} />
+          <IonRouterOutlet animated={true}>
+            {/*<Switch>*/}
+              <Route path="/quotes" component={Quotes} exact={true} />
+              <Route path="/exchange/:payCoin/:exchangeCoin" component={Exchange} exact={true} />
+              <Route path="/exchange" component={Exchange} exact={true} />
+              <Route path="/assets" component={Assets} />
+              <Route path="/" render={() => <Redirect to="/quotes" />} exact={true} />
+            {/*</Switch>*/}
           </IonRouterOutlet>
           <IonTabBar slot="bottom">
             <IonTabButton tab="quotes" href="/quotes">

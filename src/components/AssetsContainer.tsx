@@ -2,6 +2,7 @@ import * as React from 'react';
 import {IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonCol, IonRow, IonText} from "@ionic/react";
 import {BlanceOfCoin} from "../types/types";
 import i18n from "../i18n";
+import utils from "../common/utils";
 
 interface ContainerProps {
   info: BlanceOfCoin;
@@ -28,6 +29,7 @@ const AssetsContainer: React.FC<ContainerProps> = ({ info,withdraw,showBills }) 
                       <IonText mode="ios" className={"text-item"}>{i18n.t("locked")}</IonText>
                   </IonCol>
               </IonRow>
+
               <IonRow className={"text-center"}>
                   <IonCol>
                       <IonText mode="ios" className={"text-item-dark"}>{info.amount.plus(info.lockedAmount).toString(10)}</IonText>
@@ -49,7 +51,7 @@ const AssetsContainer: React.FC<ContainerProps> = ({ info,withdraw,showBills }) 
                   </IonCol>
                   <IonCol>
                       <IonButton  mode="ios"size={"small"} fill="outline" expand="block" onClick={()=>{
-                          window.location.href = "#/exchange"
+                          utils.goPage( "/exchange")
                       }}>{i18n.t("exchange")}</IonButton>
                   </IonCol>
               </IonRow>

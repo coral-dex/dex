@@ -7,18 +7,12 @@ import {
     IonSearchbar,
     IonList,
     IonItem,
-    IonInput,
-    IonLabel,
-    IonText,
-    IonGrid,
-    IonRow,
-    IonCol,
     IonAlert,
     IonIcon,
     IonToolbar,
     IonButtons,
-    IonMenuButton, IonPopover,
-    IonTitle, IonSelect, IonHeader, IonSelectOption, IonLoading
+    IonPopover,
+    IonTitle, IonHeader, IonLoading
 } from '@ionic/react';
 import './quotes.css'
 import AssetsContainer from "../components/AssetsContainer";
@@ -26,14 +20,10 @@ import coral from "../contract/coral";
 import service from "../service/service";
 import {storage} from "../common/storage";
 import {person} from 'ionicons/icons'
-import {Bill, BlanceOfCoin, PairVolumeInfo} from "../types/types";
+import {Bill, BlanceOfCoin} from "../types/types";
 import utils from "../common/utils";
 import BillsContainer from "../components/BillsContainer";
 import i18n from '../i18n'
-const customActionSheetOptions = {
-    header: 'Accounts',
-    subHeader: 'Select one account for coral exchange'
-};
 
 interface State {
     accounts:any
@@ -74,7 +64,25 @@ class Assets extends React.Component<State, any>{
 
     componentDidMount(): void {
         const that = this;
-        this.getAccounts().then(rest=>{
+
+        let intervalId:any = sessionStorage.getItem("intervalId3");
+        if(intervalId){
+            clearInterval(intervalId);
+        }
+        intervalId = setInterval(function () {
+            that.getAccounts().then(rest=>{
+                that.getAssets();
+            }).catch(e=>{
+
+            })
+        },5*1000);
+        sessionStorage.setItem("intervalId3",intervalId);
+
+        that.setState({
+            showLoading:true
+        })
+
+        that.getAccounts().then(rest=>{
             that.getAssets();
         }).catch(e=>{
 
@@ -84,9 +92,6 @@ class Assets extends React.Component<State, any>{
     getAssets(){
         const that = this;
         const {selectAccount} = this.state;
-        that.setState({
-            showLoading:true
-        })
         coral.balanceOf(selectAccount.MainPKr,"").then((rest:any)=>{
             that.setState({
                 assets:rest,

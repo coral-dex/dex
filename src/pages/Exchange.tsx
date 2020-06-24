@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
     IonContent,
     IonButtons,
@@ -12,7 +13,6 @@ import {
     IonMenu,
     IonIcon,
     IonRange,
-    IonItemDivider,
     IonInput,
     IonSegmentButton,
     IonSegment,
@@ -20,8 +20,6 @@ import {
     IonCol,
     IonRow,
     IonGrid,
-    IonSelect,
-    IonSelectOption,
     IonText,
     IonList,
     IonItem,
@@ -32,7 +30,7 @@ import {
 import './quotes.css'
 import OrdersContainer from "../components/OrdersContainer";
 import PriceContainer from "../components/PriceContainer";
-import {chevronDown, person, ellipsisVerticalOutline,trashOutline,close} from 'ionicons/icons'
+import {person, ellipsisVerticalOutline,trashOutline,close} from 'ionicons/icons'
 import service from "../service/service";
 import utils from "../common/utils";
 import {storage} from "../common/storage";
@@ -71,6 +69,18 @@ interface State {
     loadMore:boolean
     showActionSheet:boolean
     bills:Array<Bill>
+    vol24:Array<BigNumber>
+}
+
+function scrollBottom() {
+    let id:any = null;
+    id = setInterval(function () {
+        const div = document.getElementById("sellScroll");
+        if(div) {
+            div.scrollTop = div.scrollHeight;
+            clearInterval(id)
+        }
+    },100)
 }
 
 class Exchange extends React.Component<State, any>{
@@ -100,18 +110,23 @@ class Exchange extends React.Component<State, any>{
         loadMore:false,
         useCoralBalance:false,
         showActionSheet:false,
-        bills:[]
+        bills:[],
+        vol24:[]
     }
 
     componentDidMount(): void {
         this.setShowLoading(true);
         this.init();
+
+
     }
 
     init(){
         const that = this;
         that.getAccounts().then(rest=>{
-            that.setPairVolumeInfo().catch();
+            that.setPairVolumeInfo().then(()=>{
+                scrollBottom();
+            }).catch();
 
         }).catch();
         that.getDatas().catch();
@@ -125,6 +140,7 @@ class Exchange extends React.Component<State, any>{
             that.setPairVolumeInfo().catch();
         },5*1000);
         sessionStorage.setItem("intervalId",intervalId);
+
     }
 
     setShowLoading(f:boolean){
@@ -143,12 +159,14 @@ class Exchange extends React.Component<State, any>{
         // let exchangeCoin:any = this.props.match.params.exchangeCoin
         info = storage.get(storage.keys.pairs)
         if(info){
+            const vol24:Array<BigNumber> = await coral.pairVolumeOf24H(selectAccount.MainPKr,info.exchangeCoin,info.payCoin);
             const detail:PairInfo = await coral.pairInfo(info.exchangeCoin,info.payCoin);
             const balanceEx = await coral.balanceOf(selectAccount.MainPKr,info.exchangeCoin)
             const balanceCoin = await coral.balanceOf(selectAccount.MainPKr,info.payCoin)
             that.timeOrders();
             that.setState({
                 info:info,
+                vol24:vol24,
                 detail:detail,
                 payCoins:payCoins,
                 showLoading:false,
@@ -419,7 +437,6 @@ class Exchange extends React.Component<State, any>{
 
     setPayCoin=(v: any)=>{
         const that = this;
-        console.log("setPayCoin>>>")
         that.setState({
             selectCoin: v
         })
@@ -541,17 +558,29 @@ class Exchange extends React.Component<State, any>{
         })
     }
 
+    setAmountAndPrice=(price:any,amount?:any)=>{
+        const that = this;
+        if(!price){
+            return;
+        }else{
+            that.setPrice(price)
+        }
+        if(amount){
+            that.setAmount(amount)
+        }
+    }
+
     render(): React.ReactNode {
         const {info,accounts,selectAccount,detail,opType,
             price,amount,rangeValue,total,orders,searchText,
-            selectCoin,list,payCoins,showLoading,showPopover,
+            selectCoin,list,payCoins,showLoading,showPopover,vol24,
             orderType,pageNo,loadMore,useCoralBalance,showActionSheet,bills} = this.state;
 
         const options = this.renderAccountsOp(accounts)
         // const data = this.renderData();
         let latestPrice = "0.0000";
-        if(info){
-            latestPrice = new BigNumber(info.lastPrice).toFixed(utils.priceFixed())
+        if(vol24.length === 3){
+            latestPrice = vol24[1].toFixed(utils.priceFixed())
         }
         let exchangeUnit = info?.payCoin
         // let volUnit = info?.exchangeCoin;
@@ -631,7 +660,7 @@ class Exchange extends React.Component<State, any>{
                                 </div>
                             </IonCol>
                             <IonCol size={"6"}>
-                                <PriceContainer detail={detail} lastPrice={latestPrice} exchangeCoin={info?.exchangeCoin as string} payCoin={info?.payCoin as string}/>
+                                <PriceContainer detail={detail} lastPrice={latestPrice} exchangeCoin={info?.exchangeCoin as string} payCoin={info?.payCoin as string} setAmountAndPrice={this.setAmountAndPrice}/>
                                 {/*<IonPopover*/}
                                 {/*    isOpen={showPopover}*/}
                                 {/*    cssClass='my-custom-class'*/}
@@ -652,7 +681,7 @@ class Exchange extends React.Component<State, any>{
                     <div className={"divider"}/>
                     <IonRow>
                         <IonCol size="10">
-                            <IonSegment mode="md" value={orderType} onIonChange={e => this.setOrderType(e.detail.value)}>
+                            <IonSegment value={orderType} onIonChange={e => this.setOrderType(e.detail.value)}>
                                 <IonSegmentButton mode="md" value="current">
                                     <IonLabel mode="md">{i18n.t("currentOrders")}</IonLabel>
                                 </IonSegmentButton>

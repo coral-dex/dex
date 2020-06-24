@@ -92,6 +92,10 @@ export default {
     balanceFixed(){
         const fixed:number = storage.get(storage.keys.fixed.balance) as number;
         return fixed?fixed:6
+    },
+
+    goPage(path:string){
+        window.location.href = "#"+path;
     }
 
 

@@ -13,11 +13,12 @@ import i18n from "../i18n";
 interface ContainerProps {
     detail?: PairInfo;
     lastPrice?:any;
-    payCoin:string
-    exchangeCoin:string
+    payCoin:string;
+    exchangeCoin:string;
+    setAmountAndPrice:(price:any,amount?:any)=>void;
 }
 
-const PriceContainer: React.FC<ContainerProps> = ({detail,lastPrice,payCoin,exchangeCoin}) => {
+const PriceContainer: React.FC<ContainerProps> = ({detail,lastPrice,payCoin,exchangeCoin,setAmountAndPrice}) => {
     const height: number = document.documentElement.clientHeight * 0.5;
     //(421-44)/421*11/421*5
 
@@ -58,11 +59,11 @@ const PriceContainer: React.FC<ContainerProps> = ({detail,lastPrice,payCoin,exch
                 const amount:any = sortMap.get(price);
                 itemTotal = itemTotal.plus(amount)
                 buyList.push(
-                    <IonRow>
-                        <IonCol size="1">
+                    <IonRow onClick={()=>{setAmountAndPrice(price,amount.toFixed(utils.amountFixed()))}}>
+                        <IonCol size="2">
                             <IonText mode="ios" className={"text-item-buy"}>{++i}</IonText>
                         </IonCol>
-                        <IonCol size="11">
+                        <IonCol size="10">
                             <IonText mode="ios" className={"text-item-buy"}>{price}</IonText>
                             <IonText mode="ios" className={"text-item-amount"}>{amount.toFixed(utils.amountFixed())}</IonText>
                             <span className="dynamic_changes_b bg-buy-color" style={{width: itemTotal.multipliedBy(100).dividedBy(total).toFixed(6)+"%"}}/>
@@ -104,11 +105,11 @@ const PriceContainer: React.FC<ContainerProps> = ({detail,lastPrice,payCoin,exch
                 const price = sortedArray[i];
                 const amount:any = sortMap.get(price)
                 sellList.push(
-                    <IonRow>
-                        <IonCol size="1">
+                    <IonRow onClick={()=>{setAmountAndPrice(price,amount.toFixed(utils.amountFixed()))}}>
+                        <IonCol size="2">
                             <IonText mode="ios" className={"text-item-sell"}>{i+1}</IonText>
                         </IonCol>
-                        <IonCol size="11">
+                        <IonCol size="10">
                             <IonText mode="ios" className={"text-item-sell"}>{price}</IonText>
                             <IonText mode="ios" className={"text-item-amount"}>{amount.toFixed(utils.amountFixed())}</IonText>
                             <span className="dynamic_changes bg-dec-color" style={{width: itemTotal.multipliedBy(100).dividedBy(total).toFixed(6)+"%"}}/>
@@ -128,20 +129,20 @@ const PriceContainer: React.FC<ContainerProps> = ({detail,lastPrice,payCoin,exch
                     <IonText className={"text-item"}>{i18n.t("amount")}({exchangeCoin})</IonText>
                 </IonItem>
             </div>
-            <div style={{overflowY: "scroll", height: (height - 44) / 11 * 5}}>
+            <div style={{overflowY: "scroll", height: (height - 44) / 11 * 5}} id="sellScroll">
                 {sellList}
             </div>
             <div style={{overflowY: "scroll", height: (height - 44) / 11 * 1}}>
-                <IonRow>
-                    <IonCol size="6">
+                <IonRow onClick={()=>{setAmountAndPrice(lastPrice)}}>
+                    <IonCol size="12" >
                         <IonText mode="ios" className={"text-item-current"}>{lastPrice}</IonText>
                     </IonCol>
-                    <IonCol size="1">
-                        <IonText mode="ios" className={"text-item"}>≈</IonText>
-                    </IonCol>
-                    <IonCol size="5">
-                        <IonText mode="ios" className={"text-item"}>¥0.0000</IonText>
-                    </IonCol>
+                {/*    <IonCol size="1">*/}
+                {/*        <IonText mode="ios" className={"text-item"}>≈</IonText>*/}
+                {/*    </IonCol>*/}
+                {/*    <IonCol size="5">*/}
+                {/*        <IonText mode="ios" className={"text-item"}>¥0.0000</IonText>*/}
+                {/*    </IonCol>*/}
                 </IonRow>
             </div>
 

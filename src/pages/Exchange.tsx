@@ -133,6 +133,14 @@ class Exchange extends React.Component<State, any>{
         }
     }
 
+    componentWillUnmount(): void {
+        console.warn("componentWillUnmount")
+        let intervalId:any = sessionStorage.getItem("intervalId");
+        if(intervalId){
+            clearInterval(intervalId);
+        }
+    }
+
     init(){
         const that = this;
         that.getAccounts().then(rest=>{

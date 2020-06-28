@@ -73,6 +73,7 @@ interface State {
     ulDisplay:string
 }
 
+let latestPath = '';
 function scrollBottom() {
     let id:any = null;
     id = setInterval(function () {
@@ -121,8 +122,15 @@ class Exchange extends React.Component<State, any>{
     componentDidMount(): void {
         this.setShowLoading(true);
         this.init();
+    }
 
-
+    componentWillReceiveProps(nextProps: Readonly<State>, nextContext: any): void {
+        //@ts-ignore
+        if(nextProps.history.action === "POP" && latestPath !== nextProps.location.pathname){
+            // @ts-ignore
+            latestPath = nextProps.location.pathname
+            this.setPairVolumeInfo().catch();
+        }
     }
 
     init(){
@@ -162,6 +170,9 @@ class Exchange extends React.Component<State, any>{
         // @ts-ignore
         // let exchangeCoin:any = this.props.match.params.exchangeCoin
         info = storage.get(storage.keys.pairs)
+        that.setState({
+            info:info,
+        })
         if(info){
             const vol24:Array<BigNumber> = await coral.pairVolumeOf24H(selectAccount.MainPKr,info.exchangeCoin,info.payCoin);
             const detail:PairInfo = await coral.pairInfo(info.exchangeCoin,info.payCoin);
@@ -169,7 +180,6 @@ class Exchange extends React.Component<State, any>{
             const balanceCoin = await coral.balanceOf(selectAccount.MainPKr,info.payCoin)
             that.timeOrders();
             that.setState({
-                info:info,
                 vol24:vol24,
                 detail:detail,
                 payCoins:payCoins,

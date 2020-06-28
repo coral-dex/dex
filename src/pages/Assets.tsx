@@ -281,7 +281,7 @@ class Assets extends React.Component<State, any>{
                         isOpen={showAlert}
                         onDidDismiss={() => this.setShowAlert(false)}
                         cssClass='my-custom-class'
-                        header={'Withdraw!'}
+                        header={i18n.t('withdraw')}
                         inputs={[
                             {
                                 name: 'amount',
@@ -292,7 +292,7 @@ class Assets extends React.Component<State, any>{
                         ]}
                         buttons={[
                             {
-                                text: 'Cancel',
+                                text: i18n.t('cancel'),
                                 role: 'cancel',
                                 cssClass: 'secondary',
                                 handler: () => {
@@ -300,7 +300,7 @@ class Assets extends React.Component<State, any>{
                                 }
                             },
                             {
-                                text: 'Ok',
+                                text: i18n.t('ok'),
                                 handler: (o:any) => {
                                    this.withdrawConfirm(o)
                                 }

@@ -32,13 +32,13 @@ const AssetsContainer: React.FC<ContainerProps> = ({ info,withdraw,showBills }) 
 
               <IonRow className={"text-center"}>
                   <IonCol>
-                      <IonText mode="ios" className={"text-item-dark"}>{info.amount.plus(info.lockedAmount).toString(10)}</IonText>
+                      <IonText mode="ios" className={"text-item-dark"}>{info.amount.plus(info.lockedAmount).toFixed(utils.amountFixed(),1)}</IonText>
                   </IonCol>
                   <IonCol>
-                      <IonText mode="ios" className={"text-item-dark"}>{info.amount.toString(10)}</IonText>
+                      <IonText mode="ios" className={"text-item-dark"}>{info.amount.toFixed(utils.amountFixed(),1)}</IonText>
                   </IonCol>
                   <IonCol>
-                      <IonText mode="ios" className={"text-item-dark"}>{info.lockedAmount.toString(10)}</IonText>
+                      <IonText mode="ios" className={"text-item-dark"}>{info.lockedAmount.toFixed(utils.amountFixed(),1)}</IonText>
                   </IonCol>
               </IonRow>
 
@@ -49,11 +49,11 @@ const AssetsContainer: React.FC<ContainerProps> = ({ info,withdraw,showBills }) 
                   <IonCol>
                       <IonButton mode="ios" size={"small"} fill="outline" expand="block" onClick={()=>showBills(info,1)}>{i18n.t("bill")}</IonButton>
                   </IonCol>
-                  <IonCol>
-                      <IonButton  mode="ios"size={"small"} fill="outline" expand="block" onClick={()=>{
-                          utils.goPage( "/exchange")
-                      }}>{i18n.t("exchange")}</IonButton>
-                  </IonCol>
+                  {/*<IonCol>*/}
+                  {/*    <IonButton  mode="ios"size={"small"} fill="outline" expand="block" onClick={()=>{*/}
+                  {/*        utils.goPage( "/exchange")*/}
+                  {/*    }}>{i18n.t("exchange")}</IonButton>*/}
+                  {/*</IonCol>*/}
               </IonRow>
           </IonCardContent>
       </IonCard>

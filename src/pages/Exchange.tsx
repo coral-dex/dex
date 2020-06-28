@@ -133,14 +133,6 @@ class Exchange extends React.Component<State, any>{
         }
     }
 
-    componentWillUnmount(): void {
-        console.warn("componentWillUnmount")
-        let intervalId:any = sessionStorage.getItem("intervalId");
-        if(intervalId){
-            clearInterval(intervalId);
-        }
-    }
-
     init(){
         const that = this;
         that.getAccounts().then(rest=>{
@@ -675,6 +667,7 @@ class Exchange extends React.Component<State, any>{
 
                     <IonMenu side="start" menuId="first">
                        <IonContent>
+
                            <MarketContainer list={list} onSearch={this.setSearchText} searchText={searchText} selectCoin={selectCoin} setPayCoin={this.setPayCoin} coins={payCoins} goExchange={this.goExchange}/>
                        </IonContent>
                     </IonMenu>

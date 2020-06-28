@@ -17,11 +17,9 @@ export interface AllOrder {
 class Coral {
 
     exchange:any;
-    exchangebase:any;
 
     constructor() {
         this.exchange = serojs.callContract(config.exchange.abi, config.exchange.address);
-        this.exchangebase = serojs.callContract(config.exchangeBase.abi, config.exchangeBase.address);
     }
 
     async getFee(mainPKr:string,coin:string){
@@ -30,6 +28,7 @@ class Coral {
 
     async getPayCoins():Promise<Array<string>>{
         const rest:any = await this.callExchangeBase("getPayCoins","",[]);
+        console.log("getPayCoins>>>",rest);
         return new Promise((resolve) => {
             resolve(rest[0])
         })
@@ -38,6 +37,7 @@ class Coral {
     async tokenList(payCoin:string):Promise<Array<PairVolumeInfo>>{
         const decimal = await service.getDecimal(payCoin);
         const rest:any = await this.callExchangeBase("tokenList","",[payCoin]);
+        console.log("tokenList>>>",rest);
         const data:any = utils.convertResult(rest[0]);
         const ret:Array<PairVolumeInfo> = [];
         for(let d of data){
@@ -80,8 +80,8 @@ class Coral {
 
     async orders(mainPKr:string,exchangeCoin:string,coin:string):Promise<Array<Order>>{
         const decimal = await service.getDecimal(coin);
-        const rest:any = await this.callExchangeBase("pendintOrders",mainPKr,[exchangeCoin,coin])
-        console.log("pendintOrders>>>",rest);
+        const rest:any = await this.callExchangeBase("pendingOrders",mainPKr,[exchangeCoin,coin])
+        console.log("pendingOrders>>>",rest);
         return new Promise((resolve) => {
             const orderArr = utils.convertResult(rest[0]);
             resolve(buildOrders(orderArr,decimal,true))
@@ -104,8 +104,8 @@ class Coral {
 
     async allOrders(mainPKr:string,exchangeCoin:string,coin:string,offset:number,limit:number):Promise<AllOrder>{
         const decimal = await service.getDecimal(coin);
-        const rest:any = await this.callExchangeBase("allOrders",mainPKr,[exchangeCoin,coin,offset,limit])
-        console.log("AllOrder,",rest)
+        const rest:any = await this.callExchangeBase("pageOrders",mainPKr,[exchangeCoin,coin,offset,limit])
+
         return new Promise((resolve) => {
             const orderArr = utils.convertResult(rest[0]);
             resolve({orders:buildOrders(orderArr,decimal,true),count:parseInt(rest[1])})
@@ -116,7 +116,6 @@ class Coral {
         const rest:any =  await this.callExchange("getBills",mainPKr,[coin,offset,limit])
         // const amount:any = rest[1];
         const data = utils.convertResult(rest[0])
-        console.log("getBillsssss>>>",rest,data);
         const decimal = await service.getDecimal(coin);
         let h:Array<Bill> = [];
         for(let d of data){
@@ -135,7 +134,6 @@ class Coral {
         const rest:any =  await this.callExchange("getExBills",mainPKr,[coin])
 
         const data = utils.convertResult(rest[0])
-        console.log("getBills>>>",rest,data);
         const decimal = await service.getDecimal(coin);
         let h:Array<Bill> = [];
         for(let d of data){
@@ -200,7 +198,7 @@ class Coral {
     }
 
     callExchangeBase(method:string, from:string, args:any) {
-        return this.callMethod(this.exchangebase,method, from, args)
+        return this.callMethod(this.exchange,method, from, args)
     }
 
     executeExchange(method:string, pk:string, mainPKr:string, args:any, cy:string, value:BigNumber) {

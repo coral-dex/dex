@@ -17,6 +17,7 @@
   "myBills": "My Deals",
   "operation": "Operation",
   "opType": "Type",
+  "exAmount": "Trade Total",
   "createTime": "Time",
   "exchangeAmount": "Trading Volume",
   "cancelOrder": "Cancel",

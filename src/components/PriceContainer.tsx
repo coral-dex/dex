@@ -64,7 +64,7 @@ const PriceContainer: React.FC<ContainerProps> = ({detail,vol24,payCoin,exchange
             for(let price of sortedArray){
                 const amount:any = sortMap.get(price);
                 itemTotal = itemTotal.plus(amount)
-                const tmp = itemTotal.toFixed(utils.amountFixed());
+                const tmp = itemTotal.toFixed(utils.amountFixed(),2);
                 buyList.push(
                     <IonRow onClick={()=>{setAmountAndPrice(price,tmp)}}>
                         <IonCol size="2">
@@ -72,7 +72,7 @@ const PriceContainer: React.FC<ContainerProps> = ({detail,vol24,payCoin,exchange
                         </IonCol>
                         <IonCol size="10">
                             <IonText mode="ios" className={"text-item-buy"}>{price}</IonText>
-                            <IonText mode="ios" className={"text-item-amount"}>{amount.toFixed(utils.amountFixed())}</IonText>
+                            <IonText mode="ios" className={"text-item-amount"}>{amount.toFixed(utils.amountFixed(),2)}</IonText>
                             <span className="dynamic_changes bg-buy-color" style={{width: itemTotal.multipliedBy(100).dividedBy(total).toFixed(6)+"%"}}/>
                         </IonCol>
                     </IonRow>
@@ -111,7 +111,7 @@ const PriceContainer: React.FC<ContainerProps> = ({detail,vol24,payCoin,exchange
             for(let i=sortedArray.length-1;i>=0;i--){
                 const price = sortedArray[i];
                 const amount:any = sortMap.get(price)
-                const tmp = itemTotal.toFixed(utils.amountFixed());
+                const tmp = itemTotal.toFixed(utils.amountFixed(),2);
                 sellList.push(
                     <IonRow onClick={()=>{setAmountAndPrice(price,tmp)}}>
                         <IonCol size="2">
@@ -119,7 +119,7 @@ const PriceContainer: React.FC<ContainerProps> = ({detail,vol24,payCoin,exchange
                         </IonCol>
                         <IonCol size="10">
                             <IonText mode="ios" className={"text-item-sell"}>{price}</IonText>
-                            <IonText mode="ios" className={"text-item-amount"}>{amount.toFixed(utils.amountFixed())}</IonText>
+                            <IonText mode="ios" className={"text-item-amount"}>{amount.toFixed(utils.amountFixed(),2)}</IonText>
                             <span className="dynamic_changes bg-dec-color" style={{width: itemTotal.multipliedBy(100).dividedBy(total).toFixed(6)+"%"}}/>
                         </IonCol>
                     </IonRow>

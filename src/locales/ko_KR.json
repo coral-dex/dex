@@ -17,6 +17,7 @@
   "myBills": "내 거래",
   "operation": "작업",
   "opType": "유형",
+  "exAmount": "총 거래",
   "createTime": "시간",
   "exchangeAmount": "거래량",
   "cancelOrder": "취소",

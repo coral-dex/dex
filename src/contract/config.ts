@@ -1,7 +1,7 @@
 class Config {
 
     exchange:any = {
-        address:"3BKUyhLjvTZ64Sx6bX5uNwoNX7YVwdVhvHkiwpdoJjpYUtpw7ujsuBKBtMpqNPDxz257Ls3GwEPs2kfvkgPTr48N",
+        address:"2pT1Tzg3iv7jLhDqfN9BYsf7rUibmCCSoacdpX62ab3N51hQML5Fh6x8PbBEfAjbpoSibR9UQ877FcBuXVB2RGg4",
 
         abi:[
             {
@@ -518,6 +518,10 @@ class Config {
                                 ],
                                 "name": "sellOrders",
                                 "type": "tuple[]"
+                            },
+                            {
+                                "name": "minExchangeCoinValue",
+                                "type": "uint256"
                             }
                         ],
                         "name": "",

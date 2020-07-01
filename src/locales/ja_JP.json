@@ -17,6 +17,7 @@
   "myBills":"私の取引",
   "operation":"操作",
   "opType":"タイプ",
+  "exAmount": "取引合計",
   "createTime":"時間",
   "exchangeAmount":"取引量",
   "cancelOrder":"キャンセル",

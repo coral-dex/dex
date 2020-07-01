@@ -116,7 +116,7 @@ class Exchange extends React.Component<State, any>{
         showActionSheet:false,
         bills:[],
         vol24:[],
-        ulDisplay:"none"
+        ulDisplay:"none",
     }
 
     componentDidMount(): void {
@@ -161,23 +161,31 @@ class Exchange extends React.Component<State, any>{
         })
     }
 
-    async setPairVolumeInfo(info?:PairVolumeInfo){
+    async setPairVolumeInfo(infoParam?:PairVolumeInfo){
         const that = this;
-        const {selectAccount} = that.state;
+        const {selectAccount, info} = that.state;
         const payCoins = await coral.getPayCoins();
         // @ts-ignore
         // let payCoin:any = this.props.match.params.payCoin
         // @ts-ignore
         // let exchangeCoin:any = this.props.match.params.exchangeCoin
-        info = storage.get(storage.keys.pairs)
+        infoParam = storage.get(storage.keys.pairs)
+        if(info && infoParam){
+            if(info.payCoin != infoParam.payCoin){
+                that.setState({
+                    amount:'',
+                    price:''
+                })
+            }
+        }
         that.setState({
-            info:info,
+            info:infoParam,
         })
-        if(info){
-            const vol24:Array<BigNumber> = await coral.pairVolumeOf24H(selectAccount.MainPKr,info.exchangeCoin,info.payCoin);
-            const detail:PairInfo = await coral.pairInfo(info.exchangeCoin,info.payCoin);
-            const balanceEx = await coral.balanceOf(selectAccount.MainPKr,info.exchangeCoin)
-            const balanceCoin = await coral.balanceOf(selectAccount.MainPKr,info.payCoin)
+        if(infoParam){
+            const vol24:Array<BigNumber> = await coral.pairVolumeOf24H(selectAccount.MainPKr,infoParam.exchangeCoin,infoParam.payCoin);
+            const detail:PairInfo = await coral.pairInfo(infoParam.exchangeCoin,infoParam.payCoin);
+            const balanceEx = await coral.balanceOf(selectAccount.MainPKr,infoParam.exchangeCoin)
+            const balanceCoin = await coral.balanceOf(selectAccount.MainPKr,infoParam.payCoin)
             that.timeOrders();
             that.setState({
                 vol24:vol24,
@@ -346,11 +354,11 @@ class Exchange extends React.Component<State, any>{
     }
 
     sellConfirm(){
-        const {price,amount,total,info,selectAccount,opType,useCoralBalance} = this.state;
+        const {price,amount,total,info,selectAccount,opType,useCoralBalance,detail} = this.state;
         if(!price || !amount || parseFloat(price)===0 || parseFloat(amount) ===0 ){
             return;
         }
-        if(info){
+        if(info && detail){
             const balance = this.getBalance();
             if(opType === "sell" && utils.compare(amount,balance)>0){
                 alert("not enough balance");
@@ -359,6 +367,12 @@ class Exchange extends React.Component<State, any>{
                 alert("not enough balance");
                 return
             }
+
+            if(new BigNumber(amount).comparedTo(detail?.minExchangeCoinValue)<0){
+                alert("最小购买数量为:"+detail?.minExchangeCoinValue);
+                return
+            }
+
             const priceValue = utils.toValue(price,service.getDecimalCache(info.payCoin));
             const amountValue = utils.toValue(amount,service.getDecimalCache(info.exchangeCoin));
             if(useCoralBalance){
@@ -370,18 +384,17 @@ class Exchange extends React.Component<State, any>{
                     this.setAmount(0)
                 }).catch(e=>{
                     const err = typeof e == 'string'?e:e.message;
-                    alert(err);
                 })
             }
         }
     }
 
     buyConfirm(){
-        const {price,amount,total,info,selectAccount,useCoralBalance,opType} = this.state;
+        const {price,amount,total,info,selectAccount,useCoralBalance,opType,detail} = this.state;
         if(!price || !amount || parseFloat(price)===0 || parseFloat(amount) ===0 ){
             return;
         }
-        if(info){
+        if(info && detail){
             const balance = this.getBalance();
             if(utils.compare(total,balance)>0){
                 alert("not enough balance");
@@ -390,7 +403,12 @@ class Exchange extends React.Component<State, any>{
             const priceValue = utils.toValue(price,service.getDecimalCache(info.payCoin));
             const amountValue = utils.toValue(amount,service.getDecimalCache(info.exchangeCoin));
             const totalValue =  utils.toValue(this.calTotal(opType,price,amount),service.getDecimalCache(info.exchangeCoin));
-                //utils.toValue(total,service.getDecimalCache(info.exchangeCoin));
+
+            console.log("detail?.minExchangeCoinValue:: ",detail?.minExchangeCoinValue.toString(10));
+            if(new BigNumber(amount).comparedTo(detail?.minExchangeCoinValue)<0){
+                alert("最小购买数量为:"+detail?.minExchangeCoinValue);
+                return
+            }
 
             if(useCoralBalance){
                 coral.buy(selectAccount.PK,selectAccount.MainPKr,info.exchangeCoin,info.payCoin,priceValue,amountValue).then(rest=>{
@@ -401,7 +419,6 @@ class Exchange extends React.Component<State, any>{
                     this.setAmount(0)
                 }).catch(e=>{
                     const err = typeof e == 'string'?e:e.message;
-                    alert(err);
                 })
             }
         }
@@ -690,9 +707,9 @@ class Exchange extends React.Component<State, any>{
 
                                 <div style={{padding: "0 0 0 15px"}}>
                                     <div className={"text-item"}>{i18n.t("price")}({info?.payCoin})</div>
-                                    <IonInput mode="ios" placeholder={"0.0000"} color={"dark"} inputmode={"decimal"} value={price} min="0" type="number"  onIonChange={e => this.setPrice(e.detail.value!)}/>
+                                    <IonInput mode="ios" placeholder={"0.0000"} color={"dark"} inputmode={"decimal"} min={"0"} value={price} type="number"  onIonChange={e => this.setPrice(e.detail.value!)}/>
                                     <div className={"text-item"}>{i18n.t("amount")}({info?.exchangeCoin})</div>
-                                    <IonInput mode="ios" placeholder={"0.0000"} color={"dark"} inputmode={"decimal"} min="0" value={amount} type="number"  onIonChange={e => this.setAmount(e.detail.value !)}/>
+                                    <IonInput mode="ios" placeholder={"0.0000"} color={"dark"} inputmode={"decimal"} min={detail?.minExchangeCoinValue.toFixed(utils.amountFixed())} value={amount} type="number" onIonChange={e => this.setAmount(e.detail.value !)}/>
                                     <div style={{position: "absolute", right: 0}} className={"text-item"}>{this.getBalance()} {exchangeUnit}</div>
                                     <div className={"text-item"}>{i18n.t("available")}</div>
                                     <IonRow>
@@ -733,9 +750,9 @@ class Exchange extends React.Component<State, any>{
                                 <IonSegmentButton mode="md" value="all">
                                     <IonLabel mode="md">{i18n.t("allOrders")}</IonLabel>
                                 </IonSegmentButton>
-                                <IonSegmentButton mode="md" value="myBill">
-                                    <IonLabel mode="md">{i18n.t("myBills")}</IonLabel>
-                                </IonSegmentButton>
+                                {/*<IonSegmentButton mode="md" value="myBill">*/}
+                                {/*    <IonLabel mode="md">{i18n.t("myBills")}</IonLabel>*/}
+                                {/*</IonSegmentButton>*/}
                             </IonSegment>
                         </IonCol>
                         <IonCol size="2" className="order-ellipse" onClick={()=>{

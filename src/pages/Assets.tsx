@@ -151,6 +151,9 @@ class Assets extends React.Component<State, any>{
         const {list} = this.state;
         const h:Array<any> = [];
         for(let d of list){
+            if(d.coin === "PFID"){
+                continue
+            }
             h.push(<AssetsContainer info={d} withdraw={this.withdraw} showBills={this.showBill}/>)
         }
         return h;

@@ -37,6 +37,9 @@ const MarketContainer: React.FC<ContainerProps> = ({ list,onSearch,searchText,se
     let h: Array<any> = [];
     for (let i = 0; i < list.length; i++) {
         const data = list[i];
+        if(data.offline === true){
+            continue
+        }
         let color = "success";
         let symbol = "+";
         let percent: string = "0";

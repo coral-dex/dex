@@ -116,7 +116,6 @@ class Quotes extends React.Component<State, any> {
 
     setPayCoin=(v: any)=>{
         const that = this;
-        console.log("setPayCoin>>>")
         that.setState({
             selectCoin: v
         })

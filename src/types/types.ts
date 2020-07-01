@@ -34,11 +34,13 @@ export interface Order {
     createTime: string;
     status: string;
     orderType: boolean; //true : sell ,false : buy.
+    payCoinValue: BigNumber
 }
 
 export interface PairInfo {
     buyOrders: Array<Order>;
     sellOrders: Array<Order>;
+    minExchangeCoinValue:BigNumber;
 }
 
 export interface Bill {

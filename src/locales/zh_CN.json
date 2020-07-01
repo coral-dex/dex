@@ -17,6 +17,7 @@
   "myBills": "我的成交",
   "operation": "操作",
   "opType": "类型",
+  "exAmount": "成交额",
   "createTime": "时间",
   "exchangeAmount": "交易量",
   "cancelOrder": "撤销",

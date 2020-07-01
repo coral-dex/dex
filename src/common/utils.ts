@@ -57,7 +57,7 @@ export default {
     },
 
     timeFormat(date:Date){
-        return this.dateFormat("HH:MM:SS mm/dd",date)
+        return this.dateFormat("HH:MM:SS\nmm/dd",date)
     },
 
     convertResult(result: any) {

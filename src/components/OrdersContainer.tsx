@@ -23,20 +23,21 @@ const OrdersContainer: React.FC<ContainerProps> = ({ list,payCoin,exchangeCoin,c
             const d = list[i];
             items.push(
                 <IonRow className={"text-center"}>
-                    <IonCol>
+                    <IonCol size="2">
                         {d.status === "0" ?<IonButton onClick={()=>{cancel(d.id)}} size="small" mode="ios" color="danger" expand={"block"} fill="outline">{i18n.t("cancelOrder")}</IonButton>:converState(d.status)}
                     </IonCol>
-                    <IonCol>
-                        <IonText mode="ios" className={"text-item2"} color={d.orderType?"danger":"success"}>{d.orderType?i18n.t("sell"):i18n.t("buy")}</IonText><br/>
+                    <IonCol size="3">
+                        <IonText mode="ios" className={"text-item text-center"}>{d.payCoinValue.toFixed(4)}</IonText>
                     </IonCol>
-                    <IonCol>
-                        <IonText mode="ios" className={"text-item"}>{utils.timeFormat(new Date(Math.ceil(parseInt(d.createTime)*1000)))}</IonText>
+                    <IonCol size="2">
+                        <IonText mode="ios" className={"text-item text-center"}>{utils.timeFormat(new Date(Math.ceil(parseInt(d.createTime)*1000)))}</IonText>
                     </IonCol>
-                    <IonCol>
-                        <IonText mode="ios" className={"text-item"}>{d.price.toFixed(utils.priceFixed())}</IonText>
+                    <IonCol size="2">
+                        <IonText mode="ios" className={"text-item text-center"}>{d.price.toFixed(utils.priceFixed())}</IonText><br/>
+                        <IonText mode="ios" className={"text-item2 text-center"} color={d.orderType?"danger":"success"}>{d.orderType?i18n.t("sell"):i18n.t("buy")}</IonText>
                     </IonCol>
-                    <IonCol>
-                        <IonText mode="ios" className={"text-item"}>{d.dealValue.toString(10)}/{d.value.toString(10)}</IonText>
+                    <IonCol size="3">
+                        <IonText mode="ios" className={"text-item text-center"}>{d.dealValue.toFixed(4)}/{d.value.toFixed(4)}</IonText>
                     </IonCol>
                 </IonRow>
             )
@@ -45,20 +46,20 @@ const OrdersContainer: React.FC<ContainerProps> = ({ list,payCoin,exchangeCoin,c
   return (
       <div>
           <IonRow className={"text-center"}>
-              <IonCol>
-                  <IonText mode="ios" className={"text-item"}>{i18n.t("operation")}</IonText>
+              <IonCol size="2">
+                  <IonText mode="ios" className={"text-item text-center"}>{i18n.t("operation")}</IonText>
               </IonCol>
-              <IonCol>
-                  <IonText mode="ios" className={"text-item"}>{i18n.t("opType")}</IonText>
+              <IonCol size="3">
+                  <IonText mode="ios" className={"text-item text-center"}>{i18n.t("exAmount")}({payCoin})</IonText>
               </IonCol>
-              <IonCol>
-                  <IonText mode="ios" className={"text-item"}>{i18n.t("createTime")}</IonText>
+              <IonCol size="2">
+                  <IonText mode="ios" className={"text-item text-center"}>{i18n.t("createTime")}</IonText>
               </IonCol>
-              <IonCol>
-                  <IonText mode="ios" className={"text-item"}>{i18n.t("price")}({payCoin})</IonText>
+              <IonCol size="2">
+                  <IonText mode="ios" className={"text-item text-center"}>{i18n.t("price")}({payCoin})</IonText>
               </IonCol>
-              <IonCol>
-                  <IonText mode="ios" className={"text-item"}>{i18n.t("exchangeAmount")}({exchangeCoin})</IonText>
+              <IonCol size="3">
+                  <IonText mode="ios" className={"text-item text-center"}>{i18n.t("exchangeAmount")}({exchangeCoin})</IonText>
               </IonCol>
           </IonRow>
           {items}

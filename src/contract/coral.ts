@@ -28,7 +28,6 @@ class Coral {
 
     async getPayCoins():Promise<Array<string>>{
         const rest:any = await this.callExchangeBase("getPayCoins","",[]);
-        console.log("getPayCoins>>>",rest);
         return new Promise((resolve) => {
             resolve(rest[0])
         })
@@ -37,7 +36,6 @@ class Coral {
     async tokenList(payCoin:string):Promise<Array<PairVolumeInfo>>{
         const decimal = await service.getDecimal(payCoin);
         const rest:any = await this.callExchangeBase("tokenList","",[payCoin]);
-        console.log("tokenList>>>",rest);
         const data:any = utils.convertResult(rest[0]);
         const ret:Array<PairVolumeInfo> = [];
         for(let d of data){
@@ -59,17 +57,18 @@ class Coral {
 
     async pairInfo(exchangeCoin:string,coin:string):Promise<PairInfo>{
         const rest:any = await this.callExchange("pairInfo","",[exchangeCoin,coin])
-        console.log("pairInfo>>>",rest);
+        console.log("pairInfo>>> ",rest);
         return new Promise((resolve) => {
             try{
                 const data:any = utils.convertResult(rest[0]);
-                console.log("pairInfo data>>>",data);
                 const buyOrdersArr = data[0]
                 const sellOrdersArr = data[1]
                 const decimal = service.getDecimalCache(coin);
+                const decimal2 = service.getDecimalCache(exchangeCoin);
                 const ret:PairInfo = {
                     buyOrders:buildOrders(buyOrdersArr,decimal,false),
                     sellOrders:buildOrders(sellOrdersArr,decimal,false),
+                    minExchangeCoinValue:utils.fromValue(data[2],decimal2)
                 };
                 resolve(ret)
             }catch (e) {
@@ -81,7 +80,6 @@ class Coral {
     async orders(mainPKr:string,exchangeCoin:string,coin:string):Promise<Array<Order>>{
         const decimal = await service.getDecimal(coin);
         const rest:any = await this.callExchangeBase("pendingOrders",mainPKr,[exchangeCoin,coin])
-        console.log("pendingOrders>>>",rest);
         return new Promise((resolve) => {
             const orderArr = utils.convertResult(rest[0]);
             resolve(buildOrders(orderArr,decimal,true))
@@ -268,7 +266,6 @@ class Coral {
 function buildOrders(arr:Array<any>,decimal:number,showAll?:boolean):Array<Order>{
     try{
         const orders:Array<Order> = [];
-        console.log("orders>>>",arr);
         if(arr){
             for(let d of arr){
                 if(d[5] === "0" || showAll){
@@ -283,6 +280,7 @@ function buildOrders(arr:Array<any>,decimal:number,showAll?:boolean):Array<Order
                         createTime:d[4],
                         status:d[5],
                         orderType:d[6],
+                        payCoinValue:utils.fromValue(d[7],decimal)
                     })
                 }
             }

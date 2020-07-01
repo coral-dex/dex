@@ -25,7 +25,8 @@ import {
     IonItem,
     IonLabel,
     IonLoading,
-    IonActionSheet
+    IonActionSheet,
+    IonToast
 } from '@ionic/react';
 import './quotes.css'
 import OrdersContainer from "../components/OrdersContainer";
@@ -71,6 +72,8 @@ interface State {
     bills:Array<Bill>
     vol24:Array<BigNumber>
     ulDisplay:string
+    showToast:boolean
+    toastMsg:string
 }
 
 let latestPath = '';
@@ -117,6 +120,8 @@ class Exchange extends React.Component<State, any>{
         bills:[],
         vol24:[],
         ulDisplay:"none",
+        showToast:false,
+        toastMsg:''
     }
 
     componentDidMount(): void {
@@ -361,15 +366,15 @@ class Exchange extends React.Component<State, any>{
         if(info && detail){
             const balance = this.getBalance();
             if(opType === "sell" && utils.compare(amount,balance)>0){
-                alert("not enough balance");
+                this.setShowToast(true,i18n.t("lessBalance"));
                 return
             }else if(opType === "buy" && utils.compare(total,balance)>0){
-                alert("not enough balance");
+                this.setShowToast(true,i18n.t("lessBalance"));
                 return
             }
 
             if(new BigNumber(amount).comparedTo(detail?.minExchangeCoinValue)<0){
-                alert("最小购买数量为:"+detail?.minExchangeCoinValue);
+                this.setShowToast(true,i18n.t("minTradeAmount")+detail?.minExchangeCoinValue + info.exchangeCoin);
                 return
             }
 
@@ -384,6 +389,7 @@ class Exchange extends React.Component<State, any>{
                     this.setAmount(0)
                 }).catch(e=>{
                     const err = typeof e == 'string'?e:e.message;
+                    this.setShowToast(true,err)
                 })
             }
         }
@@ -397,16 +403,15 @@ class Exchange extends React.Component<State, any>{
         if(info && detail){
             const balance = this.getBalance();
             if(utils.compare(total,balance)>0){
-                alert("not enough balance");
+                this.setShowToast(true,i18n.t("lessBalance"));
                 return
             }
             const priceValue = utils.toValue(price,service.getDecimalCache(info.payCoin));
             const amountValue = utils.toValue(amount,service.getDecimalCache(info.exchangeCoin));
             const totalValue =  utils.toValue(this.calTotal(opType,price,amount),service.getDecimalCache(info.exchangeCoin));
 
-            console.log("detail?.minExchangeCoinValue:: ",detail?.minExchangeCoinValue.toString(10));
             if(new BigNumber(amount).comparedTo(detail?.minExchangeCoinValue)<0){
-                alert("最小购买数量为:"+detail?.minExchangeCoinValue);
+                this.setShowToast(true,i18n.t("minTradeAmount")+detail?.minExchangeCoinValue + info.exchangeCoin);
                 return
             }
 
@@ -419,6 +424,7 @@ class Exchange extends React.Component<State, any>{
                     this.setAmount(0)
                 }).catch(e=>{
                     const err = typeof e == 'string'?e:e.message;
+                    this.setShowToast(true,err)
                 })
             }
         }
@@ -632,11 +638,25 @@ class Exchange extends React.Component<State, any>{
         })
     }
 
+    setShowToast(f:boolean,msg:string){
+        this.setState({
+            showToast:f,
+            toastMsg:msg
+        })
+    }
+
+    closeToast(){
+        this.setState({
+            showToast:false,
+            toastMsg:''
+        })
+    }
+
     render(): React.ReactNode {
         const {info,accounts,selectAccount,detail,opType,
             price,amount,rangeValue,total,orders,searchText,
             selectCoin,list,payCoins,showLoading,showPopover,vol24,ulDisplay,
-            orderType,pageNo,loadMore,useCoralBalance,showActionSheet,bills} = this.state;
+            orderType,pageNo,loadMore,useCoralBalance,showActionSheet,bills,showToast,toastMsg} = this.state;
 
         const options = this.renderAccountsOp(accounts)
         // const data = this.renderData();
@@ -793,6 +813,15 @@ class Exchange extends React.Component<State, any>{
                     }]}
                 >
                 </IonActionSheet>
+
+                <IonToast
+                    position="top"
+                    isOpen={showToast}
+                    onDidDismiss={() => this.closeToast()}
+                    message={toastMsg}
+                    duration={1500}
+                />
+
             </IonPage>
         );
     }

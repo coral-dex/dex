@@ -32,5 +32,7 @@
   "loadMore": "Load More",
   "completed": "Completed",
   "canceled": "Canceled",
-  "depth": "Depth"
+  "depth": "Depth",
+  "lessBalance":"Not enough balance",
+  "minTradeAmount":"Min trade amount: "
 }

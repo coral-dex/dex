@@ -32,5 +32,7 @@
   "loadMore": "加载更多",
   "completed": "已成交",
   "canceled": "已撤销",
-  "depth": "深度合并"
+  "depth": "深度合并",
+  "lessBalance":"余额不足",
+  "minTradeAmount":"最小交易数量："
 }

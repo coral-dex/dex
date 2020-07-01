@@ -32,5 +32,7 @@
   "loadMore": "추가로드",
   "completed": "완료",
   "canceled": "취소됨",
-  "depth": "깊이"
+  "depth": "깊이",
+  "lessBalance": "잔액 부족",
+  "minTradeAmount": "최소 거래량 :"
 }

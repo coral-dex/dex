@@ -32,5 +32,7 @@
   "loadMore":"さらに読み込む",
   "completed": "完了",
   "canceled": "キャンセル",
-  "depth": "深さ"
+  "depth": "深さ",
+  "lessBalance": "バランスが不十分",
+  "minTradeAmount": "最小トレード金額："
 }

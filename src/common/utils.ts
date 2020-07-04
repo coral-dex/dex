@@ -33,13 +33,13 @@ export default {
         return new BigNumber(v).toString(10)
     },
 
-    compare(a: string | number | BigNumber,b: string | number | BigNumber){
+    compare(a: string | number | BigNumber, b: string | number | BigNumber) {
         return new BigNumber(a).comparedTo(b)
     },
 
-    dateFormat(fmt:string, date:Date) {
+    dateFormat(fmt: string, date: Date) {
         let ret;
-        const opt:any = {
+        const opt: any = {
             "Y+": date.getFullYear().toString(),
             "m+": (date.getMonth() + 1).toString(),
             "d+": date.getDate().toString(),
@@ -56,8 +56,8 @@ export default {
         return fmt;
     },
 
-    timeFormat(date:Date){
-        return this.dateFormat("HH:MM:SS\nmm/dd",date)
+    timeFormat(date: Date) {
+        return this.dateFormat("HH:MM:SS\nmm/dd", date)
     },
 
     convertResult(result: any) {
@@ -79,23 +79,23 @@ export default {
         return convert(resultArray);
     },
 
-    priceFixed(){
-        const fixed:number = storage.get(storage.keys.fixed.price) as number;
-        return fixed?fixed:4
+    priceFixed() {
+        const fixed: number = storage.get(storage.keys.fixed.price) as number;
+        return fixed ? fixed : 4
     },
 
-    amountFixed(){
-        const fixed:number = storage.get(storage.keys.fixed.amount) as number;
-        return fixed?fixed:4
+    amountFixed() {
+        const fixed: number = storage.get(storage.keys.fixed.amount) as number;
+        return fixed ? fixed : 4
     },
 
-    balanceFixed(){
-        const fixed:number = storage.get(storage.keys.fixed.balance) as number;
-        return fixed?fixed:6
+    balanceFixed() {
+        const fixed: number = storage.get(storage.keys.fixed.balance) as number;
+        return fixed ? fixed : 6
     },
 
-    goPage(path:string){
-        window.location.href = "#"+path;
-    }
+    goPage(path: string) {
+        window.location.href = "#" + path;
+    },
 }
 

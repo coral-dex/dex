@@ -1,8 +1,8 @@
 class Config {
 
     exchange:any = {
-        // address:"2pT1Tzg3iv7jLhDqfN9BYsf7rUibmCCSoacdpX62ab3N51hQML5Fh6x8PbBEfAjbpoSibR9UQ877FcBuXVB2RGg4",
-        address:"4kyGxFRAW4E5sM4wbyUNa5G4hc9BjdkmH9nKDv1kzN9Py7DZKCDi1qyjXbgu2VxYu9R4LQ3sdaKTtPwx5KZytSU3",
+        // address:"2bFF13kkoeGBNQiFCMk1BWTMABZUKce4632qrqgxy4fznAehokgbq6XbVrpwWhYbn4x3cwU89JgcuaJHafSwUPAy",
+        address:"2m8WJe6qSziMoZrcoZR6rE7q28B5AAEgMgi4FsC4XK43yKSCxpYvcgiWrkQb2RYqWQGPoSawRyFBS9sr12uZRcxx",
 
         abi:[
             {
@@ -202,11 +202,11 @@ class Config {
                             },
                             {
                                 "name": "createTime",
-                                "type": "uint256"
+                                "type": "uint64"
                             },
                             {
                                 "name": "status",
-                                "type": "uint256"
+                                "type": "uint8"
                             },
                             {
                                 "name": "orderType",
@@ -355,7 +355,7 @@ class Config {
                             },
                             {
                                 "name": "timestamp",
-                                "type": "uint256"
+                                "type": "uint64"
                             },
                             {
                                 "name": "typ",
@@ -469,14 +469,6 @@ class Config {
                                     {
                                         "name": "status",
                                         "type": "uint256"
-                                    },
-                                    {
-                                        "name": "orderType",
-                                        "type": "bool"
-                                    },
-                                    {
-                                        "name": "payCoinValue",
-                                        "type": "uint256"
                                     }
                                 ],
                                 "name": "buyOrders",
@@ -506,14 +498,6 @@ class Config {
                                     },
                                     {
                                         "name": "status",
-                                        "type": "uint256"
-                                    },
-                                    {
-                                        "name": "orderType",
-                                        "type": "bool"
-                                    },
-                                    {
-                                        "name": "payCoinValue",
                                         "type": "uint256"
                                     }
                                 ],
@@ -628,7 +612,7 @@ class Config {
                             },
                             {
                                 "name": "timestamp",
-                                "type": "uint256"
+                                "type": "uint64"
                             },
                             {
                                 "name": "typ",

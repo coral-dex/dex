@@ -104,6 +104,7 @@ class Coral {
         const decimal = await service.getDecimal(coin);
         const rest:any = await this.callExchangeBase("pageOrders",mainPKr,[exchangeCoin,coin,offset,limit])
 
+        console.log("allOrders>>>",rest);
         return new Promise((resolve) => {
             const orderArr = utils.convertResult(rest[0]);
             resolve({orders:buildOrders(orderArr,decimal,true),count:parseInt(rest[1])})
@@ -266,7 +267,7 @@ class Coral {
 function buildOrders(arr:Array<any>,decimal:number,showAll?:boolean):Array<Order>{
     try{
         const orders:Array<Order> = [];
-        if(arr){
+        if(arr && arr.length>0){
             for(let d of arr){
                 if(d[5] === "0" || showAll){
                     orders.push({

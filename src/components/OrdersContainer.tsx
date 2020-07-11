@@ -19,6 +19,7 @@ interface ContainerProps {
 const OrdersContainer: React.FC<ContainerProps> = ({ list,payCoin,exchangeCoin,cancel }) => {
     const items:Array<any> = [];
     if(list && list.length>0){
+        console.log("items>>>",list);
         for(let i = 0;i<list.length;i++){
             const d = list[i];
             items.push(

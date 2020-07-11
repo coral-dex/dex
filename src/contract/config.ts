@@ -1,8 +1,7 @@
 class Config {
 
     exchange:any = {
-        // address:"2bFF13kkoeGBNQiFCMk1BWTMABZUKce4632qrqgxy4fznAehokgbq6XbVrpwWhYbn4x3cwU89JgcuaJHafSwUPAy",
-        address:"2m8WJe6qSziMoZrcoZR6rE7q28B5AAEgMgi4FsC4XK43yKSCxpYvcgiWrkQb2RYqWQGPoSawRyFBS9sr12uZRcxx",
+        address:"25nKENSpgJE1nR44QSEUfQ3FRWbx9ksGA6Y2QFAALsgvHDFJfE5sdBL1EzEs1WfdvRpk9eQJavyRRhubAM34fdtK",
 
         abi:[
             {

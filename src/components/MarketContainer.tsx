@@ -56,8 +56,8 @@ const MarketContainer: React.FC<ContainerProps> = ({ list,onSearch,searchText,se
                 <IonGrid>
                     <IonRow>
                         <IonCol className="text-center text-style">
-                            <div>
-                                {data.exchangeCoin}/{data.payCoin}<br/>
+                            <div style={{wordBreak: "break-all"}}>
+                                {data.exchangeCoin}<br/>
                                 <span className="text-light">Vol:{data.volume.toFixed(4)}</span>
                             </div>
                         </IonCol>

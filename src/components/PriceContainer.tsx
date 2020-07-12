@@ -148,8 +148,8 @@ const PriceContainer: React.FC<ContainerProps> = ({detail,vol24,payCoin,exchange
         <>
             <div>
                 <IonItem lines="none">
-                    <IonLabel><IonText className={"text-item"}>{i18n.t("price")}({payCoin})</IonText></IonLabel>
-                    <IonText className={"text-item"}>{i18n.t("amount")}({exchangeCoin})</IonText>
+                    <IonLabel><IonText className={"text-item"}>{i18n.t("price")}</IonText></IonLabel>
+                    <IonText className={"text-item"}>{i18n.t("amount")}</IonText>
                 </IonItem>
             </div>
             <div style={{overflowY: "scroll", height: (height - 44) / 11 * 5}} id="sellScroll">

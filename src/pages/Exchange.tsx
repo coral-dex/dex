@@ -408,7 +408,12 @@ class Exchange extends React.Component<State, any>{
             }
             const priceValue = utils.toValue(price,service.getDecimalCache(info.payCoin));
             const amountValue = utils.toValue(amount,service.getDecimalCache(info.exchangeCoin));
-            const totalValue =  utils.toValue(this.calTotal(opType,price,amount),service.getDecimalCache(info.exchangeCoin));
+            const totalValue =  utils.toValue(this.calTotal(opType,price,amount),service.getDecimalCache(info.payCoin));
+
+            console.log(priceValue.toString(10));
+            console.log(amountValue.toString(10));
+            console.log(totalValue.toString(10));
+
 
             if(new BigNumber(amount).comparedTo(detail?.minExchangeCoinValue)<0){
                 this.setShowToast(true,i18n.t("minTradeAmount")+detail?.minExchangeCoinValue + info.exchangeCoin);

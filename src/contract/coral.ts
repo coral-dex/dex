@@ -28,6 +28,8 @@ class Coral {
 
     async getPayCoins():Promise<Array<string>>{
         const rest:any = await this.callExchangeBase("getPayCoins","",[]);
+
+        console.log("getPayCoins>>",rest);
         return new Promise((resolve) => {
             resolve(rest[0])
         })
@@ -36,6 +38,7 @@ class Coral {
     async tokenList(payCoin:string):Promise<Array<PairVolumeInfo>>{
         const decimal = await service.getDecimal(payCoin);
         const rest:any = await this.callExchangeBase("tokenList","",[payCoin]);
+        console.log("tokenList>>",rest);
         const data:any = utils.convertResult(rest[0]);
         const ret:Array<PairVolumeInfo> = [];
         for(let d of data){
@@ -66,8 +69,8 @@ class Coral {
                 const decimal = service.getDecimalCache(coin);
                 const decimal2 = service.getDecimalCache(exchangeCoin);
                 const ret:PairInfo = {
-                    buyOrders:buildOrders(buyOrdersArr,decimal,false),
-                    sellOrders:buildOrders(sellOrdersArr,decimal,false),
+                    buyOrders:buildOrders(buyOrdersArr,decimal,decimal2,false),
+                    sellOrders:buildOrders(sellOrdersArr,decimal,decimal2,false),
                     minExchangeCoinValue:utils.fromValue(data[2],decimal2)
                 };
                 resolve(ret)
@@ -79,10 +82,11 @@ class Coral {
 
     async orders(mainPKr:string,exchangeCoin:string,coin:string):Promise<Array<Order>>{
         const decimal = await service.getDecimal(coin);
+        const decimal2 = service.getDecimalCache(exchangeCoin);
         const rest:any = await this.callExchangeBase("pendingOrders",mainPKr,[exchangeCoin,coin])
         return new Promise((resolve) => {
             const orderArr = utils.convertResult(rest[0]);
-            resolve(buildOrders(orderArr,decimal,true))
+            resolve(buildOrders(orderArr,decimal,decimal2,true))
         })
     }
 
@@ -102,12 +106,14 @@ class Coral {
 
     async allOrders(mainPKr:string,exchangeCoin:string,coin:string,offset:number,limit:number):Promise<AllOrder>{
         const decimal = await service.getDecimal(coin);
+        const decimal2 = service.getDecimalCache(exchangeCoin);
         const rest:any = await this.callExchangeBase("pageOrders",mainPKr,[exchangeCoin,coin,offset,limit])
 
         console.log("allOrders>>>",rest);
         return new Promise((resolve) => {
             const orderArr = utils.convertResult(rest[0]);
-            resolve({orders:buildOrders(orderArr,decimal,true),count:parseInt(rest[1])})
+
+            resolve({orders:buildOrders(orderArr,decimal,decimal2,true),count:parseInt(rest[1])})
         })
     }
 
@@ -264,7 +270,7 @@ class Coral {
     }
 }
 
-function buildOrders(arr:Array<any>,decimal:number,showAll?:boolean):Array<Order>{
+function buildOrders(arr:Array<any>,decimal:number,decimal2:number,showAll?:boolean):Array<Order>{
     try{
         const orders:Array<Order> = [];
         if(arr && arr.length>0){
@@ -276,8 +282,8 @@ function buildOrders(arr:Array<any>,decimal:number,showAll?:boolean):Array<Order
                         // receiverAddr:d[2],
                         // opData:d[3],
                         price:utils.fromValue(d[1],decimal),
-                        value:utils.fromValue(d[2],18),
-                        dealValue:utils.fromValue(d[3],18),
+                        value:utils.fromValue(d[2],decimal2),
+                        dealValue:utils.fromValue(d[3],decimal2),
                         createTime:d[4],
                         status:d[5],
                         orderType:d[6],

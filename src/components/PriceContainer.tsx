@@ -86,7 +86,7 @@ const PriceContainer: React.FC<ContainerProps> = ({detail,vol24,payCoin,exchange
             const sortMap:Map<string,BigNumber> = new Map();
             const sortArr:Array<string> = [];
             for(let d of detail.sellOrders){
-                const key = d.price.toFixed(utils.priceFixed())
+                const key = d.price.toFixed(utils.priceFixed(),1)
                 const amount = d.value.minus(d.dealValue);
                 if(sortMap.has(key)){
                     let value:any = sortMap.get(key);
@@ -148,8 +148,8 @@ const PriceContainer: React.FC<ContainerProps> = ({detail,vol24,payCoin,exchange
         <>
             <div>
                 <IonItem lines="none">
-                    <IonLabel><IonText className={"text-item"}>{i18n.t("price")}</IonText></IonLabel>
-                    <IonText className={"text-item"}>{i18n.t("amount")}</IonText>
+                    <IonLabel><IonText className={"text-item"}>{i18n.t("price")}({payCoin})</IonText></IonLabel>
+                    <IonText className={"text-item"}>{i18n.t("amount")}({exchangeCoin})</IonText>
                 </IonItem>
             </div>
             <div style={{overflowY: "scroll", height: (height - 44) / 11 * 5}} id="sellScroll">

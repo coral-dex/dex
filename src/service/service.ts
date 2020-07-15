@@ -103,7 +103,7 @@ class Service {
                 contractAddress: "Coral DEX",
                 github: "https://github.com/coral-dex/dex",
                 author: "Coral DEX",
-                url: window.location.href,
+                url: window.location.origin+window.location.pathname,
                 logo: window.location.origin+window.location.pathname +"assets/icon/icon.png",
             }
 

@@ -37,6 +37,10 @@ class Quotes extends React.Component<State, any> {
         showLoading:false
     }
 
+    componentWillReceiveProps(nextProps: Readonly<State>, nextContext: any): void {
+        this.getDatas().catch()
+    }
+
     componentDidMount(): void {
         const that = this;
 

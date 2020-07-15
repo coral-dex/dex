@@ -1,9 +1,25 @@
 class Config {
 
-    exchange:any = {
-        address:"2yj1RHXyvf7cYmx8VgrfBshhzGfYpJbLRXJbbWQRDBFeBc3BAtz6phetURogevmimR9Ya5ViS93WC6Z4pUMkgYSD",
+    versions:any = [
+        {
+            version: "v1.0.1",
+            address: "2yj1RHXyvf7cYmx8VgrfBshhzGfYpJbLRXJbbWQRDBFeBc3BAtz6phetURogevmimR9Ya5ViS93WC6Z4pUMkgYSD",
+            date:1594815386000,
+            state: 0,
+            latest:true
+        },
+        {
+            version: "v1.0.0",
+            address: "25nKENSpgJE1nR44QSEUfQ3FRWbx9ksGA6Y2QFAALsgvHDFJfE5sdBL1EzEs1WfdvRpk9eQJavyRRhubAM34fdtK",
+            date:1594815386000,
+            state: 1,
+            latest:false
+        }
+    ]
 
-        abi:[
+    exchange: any = {
+
+        abi: [
             {
                 "constant": true,
                 "inputs": [

@@ -34,5 +34,15 @@
   "canceled": "취소됨",
   "depth": "깊이",
   "lessBalance": "잔액 부족",
-  "minTradeAmount": "최소 거래량 :"
+  "minTradeAmount": "최소 거래량 :",
+
+  "versionDescription": "CORAL은 디지털 자산 거래를위한 분산 플랫폼이므로 거래 자산은 계약 계정에 저장됩니다. 플랫폼 업데이트는 스마트 계약을 업데이트하고 다른 버전 번호를 사용하여 새 계약을 게시하는 것으로 구성되므로 최신 버전을 사용하고 있는지 확인하십시오. 최신 버전을 받으려면 이전 버전에서 보류중인 모든 주문을 취소하고 출금을 완료하십시오.",
+  "currentVersion": "현재 버전",
+  "historyVersion": "역사 버전",
+  "version": "버전",
+  "releaseDate": "출시일",
+  "state": "State",
+  "state_0": "정상",
+  "state_1": "닫힘",
+  "switch": "스위치"
 }

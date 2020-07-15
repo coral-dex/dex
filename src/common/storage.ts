@@ -14,7 +14,9 @@ class Storage {
             price:"fixed:price",
             balance:"fixed:balance",
             amount:'fixed:amount'
-        }
+        },
+        currentContract:"currentContract",
+        latestAddress:"latestAddress",
     };
 
     /**

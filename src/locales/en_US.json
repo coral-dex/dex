@@ -34,5 +34,16 @@
   "canceled": "Canceled",
   "depth": "Depth",
   "lessBalance":"Not enough balance",
-  "minTradeAmount":"Min trade amount: "
+  "minTradeAmount":"Min trade amount: ",
+
+  "versionDescription": "CORAL is a decentralized digital asset trading platform, so trading assets are stored in a contract account. The platform upgrade consists of upgrading the smart contract and publishing a new contract using a different version number to differ, so please make sure you are currently using the latest version. To get the latest version, cancel all pending orders in the previous version and complete the withdrawal.",
+  "currentVersion": "Current Version",
+  "historyVersion": "Previous Version",
+  "version": "Version",
+  "releaseDate": "Release Date",
+  "state": "State",
+  "state_0": "Normal",
+  "state_1": "Closed",
+  "switch": "Change"
+
 }

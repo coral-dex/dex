@@ -10,7 +10,7 @@ import {
   IonTabs
 } from '@ionic/react';
 import { IonReactRouter,IonReactHashRouter,IonReactMemoryRouter } from '@ionic/react-router';
-import { statsChartOutline, swapHorizontalOutline, walletOutline } from 'ionicons/icons';
+import { statsChartOutline, swapHorizontalOutline, walletOutline ,timerOutline} from 'ionicons/icons';
 import Quotes from './pages/Quotes';
 import Exchange from './pages/Exchange';
 import Assets from './pages/Assets';
@@ -35,6 +35,8 @@ import '@ionic/react/css/display.css';
 import './theme/variables.css';
 import service from "./service/service";
 import i18n from "./i18n";
+import Kline from './pages/Kline'
+import History from './pages/History'
 
 class App extends React.Component<any, any>{
 
@@ -51,7 +53,9 @@ class App extends React.Component<any, any>{
               <Route path="/quotes" component={Quotes} exact={true} />
               <Route path="/exchange/:payCoin/:exchangeCoin" component={Exchange} exact={true} />
               <Route path="/exchange" component={Exchange} exact={true} />
-              <Route path="/assets" component={Assets} />
+              <Route path="/assets" component={Assets}  exact={true} />
+              <Route path="/kline" component={Kline} />
+              <Route path="/history" component={History}  exact={true} />
               <Route path="/" render={() => <Redirect to="/quotes" />} exact={true} />
             {/*</Switch>*/}
           </IonRouterOutlet>
@@ -67,6 +71,10 @@ class App extends React.Component<any, any>{
             <IonTabButton tab="assets" href="/assets">
               <IonIcon icon={walletOutline} />
               <IonLabel>{i18n.t("assets")}</IonLabel>
+            </IonTabButton>
+            <IonTabButton tab="history" href="/history">
+              <IonIcon icon={timerOutline} />
+              <IonLabel>{i18n.t("historyVersion")}</IonLabel>
             </IonTabButton>
           </IonTabBar>
         </IonTabs>

@@ -5,6 +5,7 @@ import {Bill, BlanceOfCoin, Deal, Order, PairInfo, PairVolumeInfo} from "../type
 import service from "../service/service";
 import config from "./config";
 import {rejects} from "assert";
+import {storage} from "../common/storage";
 
 const seropp = require('sero-pp');
 const serojs = require('serojs');
@@ -19,7 +20,30 @@ class Coral {
     exchange:any;
 
     constructor() {
-        this.exchange = serojs.callContract(config.exchange.abi, config.exchange.address);
+        this.init();
+    }
+
+    init(){
+        let currentContract:any = storage.get(storage.keys.currentContract)
+        if(!currentContract){
+            currentContract = config.versions[0]
+            storage.set(storage.keys.currentContract,currentContract);
+        }
+
+        let latest:any = storage.get(storage.keys.latestAddress)
+        if(!latest){
+            currentContract = config.versions[0]
+            storage.set(storage.keys.latestAddress,currentContract.address);
+            storage.set(storage.keys.currentContract,currentContract);
+        }else{
+            if(latest !== config.versions[0].address){
+                currentContract = config.versions[0]
+                storage.set(storage.keys.latestAddress,currentContract.address);
+                storage.set(storage.keys.currentContract,currentContract);
+            }
+        }
+
+        this.exchange = serojs.callContract(config.exchange.abi, currentContract.address);
     }
 
     async getFee(mainPKr:string,coin:string){

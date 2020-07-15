@@ -34,5 +34,14 @@
   "canceled": "已撤销",
   "depth": "深度合并",
   "lessBalance":"余额不足",
-  "minTradeAmount":"最小交易数量："
+  "minTradeAmount":"最小交易数量：",
+  "versionDescription": "Coral是去中心数字资产交易平台，所以交易中资产均由合约账户保管，平台升级即对智能合约升级，以一个新的合约方式发布，使用不同的版本号区分，所以请确保你当前使用的版本为最新版本，请撤销所有在历史版本中进行中的挂单并完成提现。",
+  "currentVersion": "正在使用的版本",
+  "historyVersion": "历史版本",
+  "version": "版本号",
+  "releaseDate": "发布时间",
+  "state": "状态",
+  "state_0": "正常",
+  "state_1": "关闭",
+  "switch": "切换"
 }

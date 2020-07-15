@@ -664,15 +664,17 @@ class Exchange extends React.Component<State, any>{
             orderType,pageNo,loadMore,useCoralBalance,showActionSheet,bills,showToast,toastMsg} = this.state;
 
         const options = this.renderAccountsOp(accounts)
+        const currentContract:any = storage.get(storage.keys.currentContract);
+        const availabe:boolean = currentContract && currentContract.state ===0;
         // const data = this.renderData();
 
         let exchangeUnit = info?.payCoin
         // let volUnit = info?.exchangeCoin;
-        let btn = <IonButton mode="ios" expand={"full"} size={"small"} style={{width: '100%'}} color={"success"} onClick={()=>{this.buyConfirm()}}>{i18n.t("buy")}</IonButton>
+        let btn = <IonButton mode="ios" expand={"full"} size={"small"} style={{width: '100%'}} disabled={!availabe} color={"success"} onClick={()=>{this.buyConfirm()}}>{i18n.t("buy")}</IonButton>
         if(opType === 'sell'){
             exchangeUnit = info?.exchangeCoin;
             // volUnit = info?.payCoin
-            btn = <IonButton mode="ios" expand={"full"} size={"small"} style={{width: '100%'}} color={"danger"} onClick={()=>{this.sellConfirm()}}>{i18n.t("sell")}</IonButton>
+            btn = <IonButton mode="ios" expand={"full"} size={"small"} style={{width: '100%'}} disabled={!availabe} color={"danger"} onClick={()=>{this.sellConfirm()}}>{i18n.t("sell")}</IonButton>
         }
 
         let fixed = storage.get(storage.keys.fixed.price);

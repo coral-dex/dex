@@ -7,10 +7,11 @@ import {
   IonRouterOutlet,
   IonTabBar,
   IonTabButton,
+  IonBadge,
   IonTabs
 } from '@ionic/react';
 import { IonReactRouter,IonReactHashRouter,IonReactMemoryRouter } from '@ionic/react-router';
-import { statsChartOutline, swapHorizontalOutline, walletOutline ,timerOutline} from 'ionicons/icons';
+import { statsChartOutline, swapHorizontalOutline, walletOutline ,timerOutline,alertOutline} from 'ionicons/icons';
 import Quotes from './pages/Quotes';
 import Exchange from './pages/Exchange';
 import Assets from './pages/Assets';
@@ -37,6 +38,7 @@ import service from "./service/service";
 import i18n from "./i18n";
 import Kline from './pages/Kline'
 import History from './pages/History'
+import config from "./contract/config";
 
 class App extends React.Component<any, any>{
 
@@ -45,6 +47,10 @@ class App extends React.Component<any, any>{
   }
 
   render(): React.ReactNode {
+    console.log("render");
+
+
+
     return <IonApp>
       <IonReactHashRouter>
         <IonTabs>
@@ -72,10 +78,17 @@ class App extends React.Component<any, any>{
               <IonIcon icon={walletOutline} />
               <IonLabel>{i18n.t("assets")}</IonLabel>
             </IonTabButton>
-            <IonTabButton tab="history" href="/history">
-              <IonIcon icon={timerOutline} />
-              <IonLabel>{i18n.t("historyVersion")}</IonLabel>
-            </IonTabButton>
+
+              <IonTabButton tab="history" href="/history">
+                {
+                  config.isLatest()?"":<IonBadge color="danger">
+                    <IonIcon icon={alertOutline} />
+                  </IonBadge>
+                }
+                <IonIcon icon={timerOutline} />
+                <IonLabel>{i18n.t("historyVersion")}</IonLabel>
+              </IonTabButton>
+
           </IonTabBar>
         </IonTabs>
       </IonReactHashRouter>

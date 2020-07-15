@@ -35,7 +35,8 @@ class History extends React.Component<any, any>{
         storage.set(storage.keys.currentContract,v);
         setTimeout(function () {
             coral.init();
-            window.location.href = "#/quotes"
+            window.location.hash = "#/quotes"
+            window.location.reload();
         },500)
     }
 

@@ -1,3 +1,5 @@
+import {storage} from "../common/storage";
+
 class Config {
 
     versions:any = [
@@ -16,6 +18,15 @@ class Config {
             latest:false
         }
     ]
+
+    isLatest(){
+        const current = storage.get(storage.keys.currentContract);
+        if(current){
+            return current.address === this.versions[0].address;
+        }
+        return false
+    }
+
 
     exchange: any = {
 

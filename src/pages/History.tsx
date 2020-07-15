@@ -72,7 +72,7 @@ class History extends React.Component<any, any>{
                     <IonCol className="text-item-version">{i18n.t("operation")}</IonCol>
                 </IonRow>
 
-                <div style={{height:document.documentElement.clientHeight*0.65,overflowY:"scroll"}}>
+                <div style={{height:document.documentElement.clientHeight*0.55,overflowY:"scroll"}}>
                     {
                         versions.map((v:any)=>{
                             return <IonRow>

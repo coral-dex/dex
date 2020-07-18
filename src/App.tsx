@@ -10,7 +10,7 @@ import {
   IonBadge,
   IonTabs
 } from '@ionic/react';
-import { IonReactRouter,IonReactHashRouter,IonReactMemoryRouter } from '@ionic/react-router';
+import { IonReactHashRouter } from '@ionic/react-router';
 import { statsChartOutline, swapHorizontalOutline, walletOutline ,timerOutline,alertOutline} from 'ionicons/icons';
 import Quotes from './pages/Quotes';
 import Exchange from './pages/Exchange';
@@ -47,10 +47,6 @@ class App extends React.Component<any, any>{
   }
 
   render(): React.ReactNode {
-    console.log("render");
-
-
-
     return <IonApp>
       <IonReactHashRouter>
         <IonTabs>

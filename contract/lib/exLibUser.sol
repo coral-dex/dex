@@ -135,6 +135,7 @@ library ExLibUser {
 			}
 		}
 		
+		// return self.userBill.getBills(addr,coin,offset,limit);
 	}
 	
 	

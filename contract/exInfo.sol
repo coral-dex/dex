@@ -152,11 +152,6 @@ contract ExInfo is ExBase {
 		pairs[key].setIncRate(incRate);
 	}
 	
-	function setDecRate(string memory exchangeCoin,string memory payCoin,uint256 decRate) external onlyOwner{
-		bytes32 key = exchangeCoin.genKey(payCoin);
-		pairs[key].setDecRate(decRate);
-		
-	}
 	
 	function detailsOf24H(string memory exchangeCoin,string memory payCoin) external view returns(Types.Hour[] memory){
 		bytes32 key = exchangeCoin.genKey(payCoin);

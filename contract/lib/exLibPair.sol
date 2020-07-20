@@ -16,7 +16,7 @@ library ExLibPair {
 	using Tool for *;
 	using ExLibVolumeList for *;
 	
-	event Deal(uint256 value, uint256 price,uint64 timestamp,uint8 opType);
+	event Deal(string exchangeCoin,string payCoin,uint256 orderId,uint256 value, uint256 price,uint64 timestamp,uint8 opType);
 	
 	struct Pair {
 		uint256 defaultRate;
@@ -255,6 +255,8 @@ library ExLibPair {
 		
 		orderId = genOrderId(pair);
 		
+		uint8 status =0;
+		
 		Types.Order memory order = Types.Order({
 			id : orderId,
 			owner : req.opAddr,
@@ -264,7 +266,7 @@ library ExLibPair {
 			value : req.value,
 			dealValue : dealValue,
 			createTime : uint64(now),
-			status : 0,
+			status : status,
 			orderType : sellOrder,
 			payCoinValue : payCoinValue
 			});
@@ -306,8 +308,14 @@ library ExLibPair {
 				new bytes(0));
 		}
 		
+		uint256 remainingCanSell = req.value.sub(exchangeCoinCost,"sell sub eror");
+		uint256 payCoinDone = Tool.calPayCoin(remainingCanSell,req.price,req.exchangeCoinDecimals);
 		
-		if (exchangeCoinCost == req.value) {
+		if (remainingCanSell == 0 || payCoinDone ==0) {
+			if (remainingCanSell >0 ){
+				user.Use(req.opAddr,pair.exchangeCoinBytes32,remainingCanSell);
+				user.add(pair.exchangeCoinBytes32,remainingCanSell);
+			}
 			orderId = genCloseOrder(pair,user,req.exchangeCoinDecimals,req.opAddr,req.receiverAddr,req.opData,req.value,payCoinIncome,true);
 		}else {
 			orderId = genOpenOrder(pair,user,req,exchangeCoinCost,payCoinIncome,true);
@@ -394,17 +402,24 @@ library ExLibPair {
 		
 		buyOrder.payCoinValue = buyOrder.payCoinValue.add(mustPayCoin);
 		
-		
 		exchangeFee = calcFee(buyValue, exchangeCoinFeeRate);
 		
-		if (buyOrder.receiverAddr == address(0)) {
-			user.Add(buyOrder.owner, pair.exchangeCoinBytes32, buyValue.sub(exchangeFee,"pair matchSingleBuy sub exchangeFee error"));
+		if (exchangeFee == 0) {
 			
-		} else {
-			user.AddReceiver(buyOrder.receiverAddr, buyOrder.opData, pair.exchangeCoin, buyValue.sub(exchangeFee,"pair matchSingleBuy sub exchangeFee error"));
+			exchangeFee = buyValue;
+			
+		}else {
+			if (buyOrder.receiverAddr == address(0)) {
+				user.Add(buyOrder.owner, pair.exchangeCoinBytes32, buyValue.sub(exchangeFee,"pair matchSingleBuy sub exchangeFee error"));
+				
+			} else {
+				user.AddReceiver(buyOrder.receiverAddr, buyOrder.opData, pair.exchangeCoin, buyValue.sub(exchangeFee,"pair matchSingleBuy sub exchangeFee error"));
+			}
+			
 		}
 		
-		emit Deal(buyValue,buyOrder.price,uint64(now),1);
+		
+		emit Deal(pair.exchangeCoin,pair.payCoin,buyOrder.id,buyValue,buyOrder.price,uint64(now),1);
 	}
 	
 	
@@ -412,11 +427,12 @@ library ExLibPair {
 		Pair storage pair,
 		ExLibUser.ExUser storage user,
 		Types.ExchangeReq memory req,
-		uint256 lockedValue
+		uint256 lockedPayCoinValue
 	) public returns (uint256 orderId){
 		
+		require(lockedPayCoinValue>0,"invalid lockedPayCoinValue");
 		
-		user.Lock(req.opAddr, pair.payCoinBytes32, lockedValue);
+		user.Lock(req.opAddr, pair.payCoinBytes32, lockedPayCoinValue);
 		
 		(uint256 exchangeCoinIncome,uint256 payCoinCost,uint256 lastPrice) = matchSell(pair, user, req);
 		
@@ -437,18 +453,22 @@ library ExLibPair {
 		}
 		
 		
-		if (exchangeCoinIncome == req.value) {
+		uint256 remaingWantBuy = req.value.sub(exchangeCoinIncome,"pair buy sub exchangeCoinIncome error");
+		
+		
+		if (remaingWantBuy ==0 ) {
 			orderId = genCloseOrder(pair,user,req.exchangeCoinDecimals,req.opAddr,req.receiverAddr,req.opData,req.value,payCoinCost,false);
-			if (lockedValue > payCoinCost) {
-				user.UnLock(req.opAddr, pair.payCoinBytes32, lockedValue.sub(payCoinCost,"pair buy sub payCoinValue error"));
+			if (lockedPayCoinValue > payCoinCost) {
+				user.UnLock(req.opAddr, pair.payCoinBytes32, lockedPayCoinValue.sub(payCoinCost,"pair buy sub payCoinValue error"));
 			}
 		}else {
 			
+			uint256 remainengNeedCost = Tool.calPayCoin(remaingWantBuy,req.price,req.exchangeCoinDecimals);
+			
+			
 			orderId = genOpenOrder(pair,user,req,exchangeCoinIncome,payCoinCost,false);
 			
-			uint256 remainingLocked = lockedValue.sub(payCoinCost,"pair buy sub payCoinCost error");
-			
-			uint256 remainengNeedCost = Tool.calPayCoin(req.value.sub(exchangeCoinIncome,"pair buy sub exchangeCoinIncome error"),req.price,req.exchangeCoinDecimals);
+			uint256 remainingLocked = lockedPayCoinValue.sub(payCoinCost,"pair buy sub payCoinCost error");
 			
 			if (remainingLocked > remainengNeedCost) {
 				
@@ -480,7 +500,12 @@ library ExLibPair {
 				continue;
 			}
 			if (req.price >= sellOrder.price) {
-				(uint256 cs,uint256 ci,uint256 cf) = matchSingleSell(pair, user, sellOrder,req.exchangeCoinDecimals, totalBuyVale);
+				(uint256 cs,uint256 ci,uint256 cf) = matchSingleSell(
+					pair,
+					user,
+					sellOrder,
+					req.exchangeCoinDecimals,
+					totalBuyVale);
 				totalBuyVale = totalBuyVale.sub(cs,"pair matchSell sub cs error");
 				hasBuyValue = hasBuyValue.add(cs);
 				hasPayCoin = hasPayCoin.add(ci);
@@ -502,19 +527,19 @@ library ExLibPair {
 		ExLibUser.ExUser storage user,
 		Types.Order storage sellOrder,
 		uint256 exchangeCoinDecimals,
-		uint256 totalBuyVale) internal returns (uint256 sellValue, uint256 payCoinInCome, uint256 payCoinFee){
+		uint256 totalWantBuyVale) internal returns (uint256 sellValue, uint256 payCoinInCome, uint256 payCoinFee){
 		
 		uint256 payCoinFeeRate = getFeeRate(pair,sellOrder.owner,pair.payCoinBytes32);
 		
 		sellValue = sellOrder.value.sub(sellOrder.dealValue,"pair matchSingleSell sun dealValue error");
-		if (sellValue <= totalBuyVale) {
+		if (sellValue <= totalWantBuyVale) {
 			sellOrder.dealValue = sellOrder.value;
 			sellOrder.status = 1;
 			pair.sellList.down(sellOrder.orderType);
 			user.packedOrder(sellOrder.owner, pair.key, sellOrder.id);
 			
 		} else {
-			sellValue = totalBuyVale;
+			sellValue = totalWantBuyVale;
 			sellOrder.dealValue = sellOrder.dealValue.add(sellValue);
 		}
 		
@@ -526,13 +551,24 @@ library ExLibPair {
 		
 		payCoinFee = calcFee(payCoinInCome, payCoinFeeRate);
 		
-		if (sellOrder.receiverAddr == address(0)){
-			user.Add(sellOrder.owner, pair.payCoinBytes32, payCoinInCome.sub(payCoinFee,"pair marketMatchSell sun payCoinFee error"));
-		}else {
-			user.AddReceiver(sellOrder.receiverAddr, sellOrder.opData, pair.payCoin, payCoinInCome.sub(payCoinFee,"pair marketMatchSell sun payCoinFee error"));
+		if (payCoinFee == 0){
+			
+			payCoinFee = payCoinInCome;
+			
+		} else {
+			if (sellOrder.receiverAddr == address(0)){
+				
+				user.Add(sellOrder.owner, pair.payCoinBytes32, payCoinInCome.sub(payCoinFee,"pair marketMatchSell sun payCoinFee error"));
+				
+			} else {
+				
+				user.AddReceiver(sellOrder.receiverAddr, sellOrder.opData, pair.payCoin, payCoinInCome.sub(payCoinFee,"pair marketMatchSell sun payCoinFee error"));
+			}
 		}
 		
-		emit Deal(sellValue,sellOrder.price,uint64(now),0);
+		
+		
+		emit Deal(pair.exchangeCoin,pair.payCoin,sellOrder.id,sellValue,sellOrder.price,uint64(now),0);
 		
 		
 	}
@@ -546,7 +582,11 @@ library ExLibPair {
 		
 		user.Lock(req.opAddr, pair.payCoinBytes32, totalPyaCoin);
 		
-		(uint256 hasBuyExchangeCoin,uint256 hasPayCoinCost,uint256 lastPrice) = marketMatchSell(pair,user,req.exchangeCoinDecimals,totalPyaCoin);
+		(uint256 hasBuyExchangeCoin,uint256 hasPayCoinCost,uint256 lastPrice) = marketMatchSell(
+			pair,
+			user,
+			req.exchangeCoinDecimals,
+			totalPyaCoin);
 		
 		if (lastPrice ==0){
 			lastPrice = getLastPrice(pair);
@@ -567,7 +607,6 @@ library ExLibPair {
 		
 		uint256 canBuy = Tool.calExchangeCoin(remaingCanCost,lastPrice,req.exchangeCoinDecimals);
 		
-		
 		if (canBuy ==0){
 			orderIds = new uint256[](1);
 			hasPayCoinCost = totalPyaCoin;
@@ -587,6 +626,7 @@ library ExLibPair {
 			);
 			
 		}else {
+			
 			Types.ExchangeReq memory newReq =  Types.ExchangeReq(
 				req.exchangeCoinDecimals,
 				req.payCoinDecimals,
@@ -619,16 +659,13 @@ library ExLibPair {
 			
 		}
 		
-		
-		
-		
 	}
 	
 	function marketMatchSell(
 		ExLibPair.Pair storage pair,
 		ExLibUser.ExUser storage user,
 		uint256 exchangeCoinDecimals,
-		uint256 canCostValue)
+		uint256 canCostPayValue)
 	internal returns (
 		uint256 hasBuyExchangeValue,
 		uint256 hasPayCoinCost,
@@ -638,7 +675,7 @@ library ExLibPair {
 		
 		hasPayCoinCost = 0;
 		
-		while (canCostValue > hasPayCoinCost && pair.sellList.len > 0) {
+		while (canCostPayValue > hasPayCoinCost && pair.sellList.len > 0) {
 			
 			(, Types.Order storage sellOrder) = pair.sellList.top();
 			
@@ -646,17 +683,36 @@ library ExLibPair {
 				pair.sellList.down(sellOrder.orderType);
 				continue;
 			}
-			uint256 currentCanPayCoinCost = canCostValue.sub(hasPayCoinCost,"pair marketMatchSell sub hasPayCoinCost error ");
-			uint256 totalBuyVale = Tool.calExchangeCoin(currentCanPayCoinCost,sellOrder.price,exchangeCoinDecimals);
+			uint256 currentCanPayCoinCost = canCostPayValue.sub(hasPayCoinCost,"pair marketMatchSell sub hasPayCoinCost error ");
+			uint256 totalCanBuyVale = Tool.calExchangeCoin(currentCanPayCoinCost,sellOrder.price,exchangeCoinDecimals);
 			
-			if (totalBuyVale >0){
-				(uint256 cs,uint256 ci,uint256 cf) = matchSingleSell(pair, user, sellOrder,exchangeCoinDecimals, totalBuyVale);
-				hasBuyExchangeValue = hasBuyExchangeValue.add(cs);
-				hasPayCoinCost = hasPayCoinCost.add(ci);
-				payCoinFee = payCoinFee.add(cf);
+			if (totalCanBuyVale >0){
+				(uint256 exchangeCoinDone,uint256 payCoinDone,uint256 feePayCoinDone) =
+				matchSingleSell(
+					pair,
+					user,
+					sellOrder,
+					exchangeCoinDecimals,
+					totalCanBuyVale);
+				hasBuyExchangeValue = hasBuyExchangeValue.add(exchangeCoinDone);
+				hasPayCoinCost = hasPayCoinCost.add(payCoinDone);
+				payCoinFee = payCoinFee.add(feePayCoinDone);
+				if (exchangeCoinDone == totalCanBuyVale){
+					
+					if (canCostPayValue > hasPayCoinCost){
+						payCoinFee= payCoinFee.add(canCostPayValue.sub(hasPayCoinCost,"marketMatchSell sub hasPayCoinCost error"));
+					}
+					
+					hasPayCoinCost = canCostPayValue;
+					
+					
+				}
 			}else {
+				
+				hasPayCoinCost = canCostPayValue;
+				
 				payCoinFee= payCoinFee.add(currentCanPayCoinCost);
-				hasPayCoinCost = canCostValue;
+				
 			}
 			
 			lastPrice = sellOrder.price;
@@ -687,15 +743,22 @@ library ExLibPair {
 			
 			uint256 fee = calcFee(coinValue, coinFeeRate);
 			
-			if (receiverAddr == address(0)) {
+			if (fee ==0){
 				
-				user.Add(opAddr, coinBytes32, coinValue.sub(fee,"pair confirmedExchange sub fee error"));
+				fee = coinValue;
 				
-			} else {
-				
-				user.AddReceiver(receiverAddr, opData, coin, coinValue.sub(fee,"pair confirmedExchange sub fee error"));
-				
+			}else {
+				if (receiverAddr == address(0)) {
+					
+					user.Add(opAddr, coinBytes32, coinValue.sub(fee,"pair confirmedExchange sub fee error"));
+					
+				} else {
+					
+					user.AddReceiver(receiverAddr, opData, coin, coinValue.sub(fee,"pair confirmedExchange sub fee error"));
+					
+				}
 			}
+			
 			user.add(coinBytes32, fee);
 		}
 		
@@ -705,3 +768,4 @@ library ExLibPair {
 }
 
 
+     

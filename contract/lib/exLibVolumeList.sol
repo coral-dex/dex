@@ -31,6 +31,13 @@ library ExLibVolumeList {
 			self.volumeList[hourIndex].totalValue = self.volumeList[hourIndex].totalValue.add(deal.exchangeCoinValue);
 			self.volumeList[hourIndex].totalAmount = self.volumeList[hourIndex].totalAmount.add(deal.payCoinValue);
 			self.volumeList[hourIndex].lastPrice = deal.lastPrice;
+			if (deal.lastPrice > self.volumeList[hourIndex].hight){
+				self.volumeList[hourIndex].hight = deal.lastPrice;
+			}
+			if (deal.lastPrice < self.volumeList[hourIndex].low){
+				self.volumeList[hourIndex].low = deal.lastPrice;
+			}
+			
 			self.lastPrice= deal.lastPrice;
 		}else {
 			self.volumeList[hourIndex].totalValue =deal.exchangeCoinValue;
@@ -38,7 +45,10 @@ library ExLibVolumeList {
 			self.volumeList[hourIndex].currentDay = currentDay;
 			self.volumeList[hourIndex].startPrice = deal.lastPrice;
 			self.volumeList[hourIndex].lastPrice = deal.lastPrice;
+			self.volumeList[hourIndex].low = deal.lastPrice;
+			self.volumeList[hourIndex].hight = deal.lastPrice;
 			self.lastPrice = deal.lastPrice;
+			
 		}
 	}
 	

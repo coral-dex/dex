@@ -21,8 +21,16 @@ contract Ex is ExInfo, SeroInterface {
 	
 	bool openSendReceiver = true;
 	
+	string public verison= "v1.0.1";
+	
+	bool public paused = false;
+	
 	constructor() public {
 		exUser.owner = msg.sender;
+	}
+	
+	function setPuase(bool status) external onlyOwner {
+		paused = status;
 	}
 	
 	function setOpenSendReceiverStatus( bool status) external onlyOwner {
@@ -82,6 +90,8 @@ contract Ex is ExInfo, SeroInterface {
 		uint256 price,
 		address receiverAddr,
 		bytes memory opData) internal view returns (bytes32 key, Types.ExchangeReq memory req) {
+		
+		require(!paused,"has closed") ;
 		
 		key = Tool.genKey(exchangeCoin, payCoin);
 		
@@ -243,6 +253,29 @@ contract Ex is ExInfo, SeroInterface {
 		return  _sellWithChangeRate(msg.sender,exchangeCoin,payCoin,msg.value,receiverAddr,changeRate);
 	}
 	
+	function sendToReceiverByIndex(uint256 index ) public {
+		
+		ExLibMap.itMapBytes32Object storage im = exUser.receiverBalance;
+		
+		uint256 size = im.size();
+		
+		require(index<size ,"invalid index");
+		
+		ExLibMap.entryBytes32Object memory item = im.getItemByIndex(index);
+		
+		bytes32 key = im.getKeyByIndex(index);
+		
+		if (item.value >= getMinSendValue(item.currency)) {
+			if (!isContract(item.addr)) {
+				require(sero_send_token(item.addr, item.currency, item.value));
+			} else {
+				sero_setCallValues(item.currency, item.value, "", 0);
+				IAgent(item.addr).Agent(item.opData);
+			}
+			im.remove(key);
+		}
+		
+	}
 	
 	function sendToReceiver(uint256 count) public {
 		
@@ -281,8 +314,12 @@ contract Ex is ExInfo, SeroInterface {
 			
 		}
 	}
-	
-	
+
+receive() external payable {
+
+}
+
+
 }
 
 
